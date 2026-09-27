@@ -1,0 +1,39 @@
+@import 'bootstrap/dist/css/bootstrap.min.css';
+
+:root {
+    --bs-primary:     #2e4f7d;
+    --bs-primary-rgb: 46, 79, 125;
+    --bs-body-bg:     #f6f7f5;
+    --bs-body-color:  #17201c;
+    --bs-border-color:#cfd6d0;
+}
+
+.btn-primary {
+    --bs-btn-bg:            #2e4f7d;
+    --bs-btn-border-color:  #2e4f7d;
+    --bs-btn-hover-bg:      #24406a;
+    --bs-btn-hover-border-color: #24406a;
+    --bs-btn-active-bg:     #1d3357;
+    --bs-btn-disabled-bg:   #2e4f7d;
+    --bs-btn-disabled-border-color: #2e4f7d;
+}
+
+.navbar-marca {
+    background-color: #17201c;
+}
+
+.card {
+    border-color: #cfd6d0;
+}
+
+.tabela-vazia {
+    color: #5a655e;
+    padding: 2.5rem 1rem;
+    text-align: center;
+}
+
+/* Campo obrigatório */
+.obrigatorio::after {
+    content: ' *';
+    color: var(--bs-danger);
+}
