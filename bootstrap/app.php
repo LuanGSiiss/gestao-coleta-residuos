@@ -2,6 +2,7 @@
 
 use Illuminate\Foundation\Application;
 use App\Http\Middleware\VerificarPerfil;
+use App\Http\Middleware\ExigirTrocaDeSenha;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 
@@ -14,6 +15,10 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'perfil' => VerificarPerfil::class
+        ]);
+
+        $middleware->web(append: [
+            ExigirTrocaDeSenha::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

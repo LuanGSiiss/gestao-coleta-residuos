@@ -37,3 +37,9 @@
     content: ' *';
     color: var(--bs-danger);
 }
+
+/* Serve para esconder os elementos controlados pelo Alpine até ele fazer o carregamento. 
+Sem isto, um elemento pode aparecer por um instante antes do Alpine escondê-lo.*/
+[x-cloak] {
+    display: none !important;
+}

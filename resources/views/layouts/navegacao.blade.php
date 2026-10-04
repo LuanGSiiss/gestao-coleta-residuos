@@ -18,14 +18,22 @@
                     </li>
 
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle {{ request()->routeIs('marcas.*', 'bairros.*') ? 'active' : '' }}"
+                        <a class="nav-link dropdown-toggle {{ request()->routeIs('bairros.*', 'funcionarios.*', 'marcas.*', 'veiculos.*') ? 'active' : '' }}"
                             href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             Cadastros
                         </a>
                         <ul class="dropdown-menu">
                             <li><a class="dropdown-item" href="{{ route('bairros.index') }}">Bairros</a></li>
+                            <li><a class="dropdown-item" href="{{ route('funcionarios.index') }}">Funcionários</a></li>
                             <li><a class="dropdown-item" href="{{ route('marcas.index') }}">Marcas de Veículo</a></li>
+                            <li><a class="dropdown-item" href="{{ route('veiculos.index') }}">Veículos</a></li>
                         </ul>
+                    </li>
+                @endif
+
+                @if (auth()->user()->perfil->administra())
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('usuarios.*') ? 'active' : '' }}" href="{{ route('usuarios.index') }}">Usuários</a>
                     </li>
                 @endif
 

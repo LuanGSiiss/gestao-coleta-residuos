@@ -8,8 +8,12 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        $this->call([
-            UsuarioSeeder::class,
-        ]);
+        // Garante que seja criado os registros em ambiente de teste/desenvolvimento.
+        if (app()->environment('local', 'testing')) {
+            $this->call([
+                CadastrosDesenvolvimentoSeeder::class,
+                UsuarioDesenvolvimentoSeeder::class,
+            ]);
+        }
     }
 }
