@@ -3,7 +3,7 @@
     'confirmacao'
 ])
 
-<form method="POST" action="{{ $acao }}" class="d-inline" data-confirmacao="{{ $confirmacao }}" onsubmit="return confirm(this.dataset.confirmacao)">
+<form method="POST" action="{{ $acao }}" class="d-inline" data-confirmacao="{{ $confirmacao }}" data-confirmacao-acao="Excluir">
     @csrf
     @method('DELETE')
     

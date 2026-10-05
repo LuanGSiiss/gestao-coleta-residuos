@@ -17,6 +17,7 @@
                             @method('PUT') 
                         @endif
 
+                        <x-form.codigo :valor="$usuario->id" />
                         <x-form.input name="nome" label="Nome" :value="$usuario->nome" required maxlength="120" autofocus />
                         <x-form.input name="email" label="E-mail" type="email" :value="$usuario->email" required maxlength="180" />
                         <x-form.select name="perfil" label="Perfil" :opcoes="$perfis" :value="$usuario->perfil?->value" required x-model="perfil" />
@@ -64,7 +65,8 @@
 
                         <form method="POST" action="{{ route('usuarios.redefinir-senha', $usuario) }}" 
                               data-confirmacao="Gerar uma nova senha temporária para {{ $usuario->nome }}?" 
-                              onsubmit="return confirm(this.dataset.confirmacao)">
+                              data-confirmacao-acao="Redefinir senha"
+                              data-confirmacao-estilo="warning">
                             @csrf
                             <button type="submit" class="btn btn-outline-warning">Redefinir senha</button>
                         </form>

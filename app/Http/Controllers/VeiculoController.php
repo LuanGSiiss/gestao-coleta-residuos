@@ -22,6 +22,7 @@ class VeiculoController extends Controller
 
         $veiculos = Veiculo::query()
             ->with('marca')
+            ->when($request->filled('id'), fn ($query) => $query->whereKey($request->integer('id')))
             ->when($busca !== '', fn ($query) => $query->where(function ($q) use ($busca, $placa) {
                 $q->where('modelo', 'ilike', "%{$busca}%");
 

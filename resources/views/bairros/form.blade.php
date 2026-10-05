@@ -14,6 +14,7 @@
                     @method('PUT') 
                 @endif
 
+                <x-form.codigo :valor="$bairro->id" />
                 <x-form.input name="nome" label="Nome" :value="$bairro->nome" required maxlength="120" autofocus />
 
                 <x-form.checkbox name="ativo" label="Bairro ativo" :checked="$bairro->exists ? $bairro->ativo : true" />

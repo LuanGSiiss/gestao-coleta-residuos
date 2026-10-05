@@ -8,7 +8,7 @@
 
 @section('conteudo')
     <x-busca :rota="route('veiculos.index')" placeholder="Placa ou modelo…">
-        <select name="marca" class="form-select" style="max-width: 13rem;" aria-label="Filtrar por marca">
+        <select name="marca" class="form-select" aria-label="Filtrar por marca">
             <option value="">Todas as marcas</option>
             @foreach ($marcas as $id => $nome)
                 <option value="{{ $id }}" @selected((string) request('marca') === (string) $id)>{{ $nome }}</option>
@@ -21,6 +21,7 @@
             <table class="table table-hover align-middle mb-0">
                 <thead class="table-light">
                     <tr>
+                        <th style="width: 6rem;">Código</th>
                         <th style="width: 8rem;">Placa</th>
                         <th>Modelo</th>
                         <th>Marca</th>
@@ -33,6 +34,7 @@
                 <tbody>
                     @forelse ($veiculos as $veiculo)
                         <tr>
+                            <td class="text-secondary">{{ $veiculo->id }}</td>
                             <td class="text-nowrap fw-semibold">{{ $veiculo->placa_formatada }}</td>
                             <td>{{ $veiculo->modelo }}</td>
                             <td>{{ $veiculo->marca->nome }}</td>
@@ -48,8 +50,8 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="tabela-vazia">
-                                @if (request('busca') || request('marca'))
+                            <td colspan="8" class="tabela-vazia">
+                                @if (request()->anyFilled(['id', 'busca', 'marca']))
                                     Nenhum veículo encontrado com estes filtros.
                                 @else
                                     Nenhum veículo cadastrado ainda.

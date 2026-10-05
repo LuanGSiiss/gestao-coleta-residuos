@@ -15,6 +15,7 @@
                     @method('PUT') 
                 @endif
 
+                <x-form.codigo :valor="$funcionario->id" />
                 <div class="row">
                     <div class="col-md-8">
                         <x-form.input name="nome" label="Nome" :value="$funcionario->nome" required maxlength="120" autofocus />

@@ -14,6 +14,7 @@
                     @method('PUT') 
                 @endif
 
+                <x-form.codigo :valor="$veiculo->id" />
                 <div class="row">
                     <div class="col-md-4">
                         <x-form.input name="placa" label="Placa" :value="$veiculo->placa_formatada" required maxlength="8" placeholder="ABC1D23" style="text-transform: uppercase;" autofocus />

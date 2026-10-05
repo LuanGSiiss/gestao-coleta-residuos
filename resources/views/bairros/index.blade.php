@@ -14,6 +14,7 @@
             <table class="table table-hover align-middle mb-0">
                 <thead class="table-light">
                     <tr>
+                        <th style="width: 6rem;">Código</th>
                         <th>Nome</th>
                         <th style="width: 8rem;">Rotas</th>
                         <th style="width: 8rem;">Situação</th>
@@ -23,6 +24,7 @@
                 <tbody>
                     @forelse ($bairros as $bairro)
                         <tr>
+                            <td class="text-secondary">{{ $bairro->id }}</td>
                             <td>{{ $bairro->nome }}</td>
                             <td class="text-secondary">{{ $bairro->rotas_count ?? 0 }}</td>
                             <td>
@@ -35,9 +37,9 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="4" class="tabela-vazia">
-                                @if (request('busca'))
-                                    Nenhum bairro encontrado para esta busca.
+                            <td colspan="5" class="tabela-vazia">
+                                @if (request()->anyFilled(['id', 'busca']))
+                                    Nenhum bairro encontrado com estes filtros.
                                 @else
                                     Nenhum bairro cadastrado ainda.
                                 @endif

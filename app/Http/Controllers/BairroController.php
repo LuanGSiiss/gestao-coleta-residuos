@@ -18,6 +18,7 @@ class BairroController extends Controller
         $busca = trim((string) $request->query('busca'));
 
         $bairros = Bairro::query()
+            ->when($request->filled('id'), fn ($query) => $query->whereKey($request->integer('id')))
             ->when($busca !== '', fn ($query) => $query->where('nome', 'ilike', "%{$busca}%"))
             //->withCount('rotas')
             ->orderBy('nome')

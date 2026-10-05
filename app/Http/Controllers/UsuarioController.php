@@ -18,6 +18,7 @@ class UsuarioController extends Controller
 
         $usuarios = Usuario::query()
             ->with('funcionario')
+            ->when($request->filled('id'), fn ($query) => $query->whereKey($request->integer('id')))
             ->when($busca !== '', fn ($query) => $query->where(fn ($q) => $q
                 ->where('nome', 'ilike', "%{$busca}%")
                 ->orWhere('email', 'ilike', "%{$busca}%")))

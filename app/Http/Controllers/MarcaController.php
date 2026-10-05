@@ -18,6 +18,7 @@ class MarcaController extends Controller
         $busca = trim((string) $request->query('busca'));
 
         $marcas = Marca::query()
+            ->when($request->filled('id'), fn ($query) => $query->whereKey($request->integer('id')))
             ->when($busca !== '', fn ($query) => $query->where('nome', 'ilike', "%{$busca}%"))
             ->orderBy('nome')
             ->paginate(15)

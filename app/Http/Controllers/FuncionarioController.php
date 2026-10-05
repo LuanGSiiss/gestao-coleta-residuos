@@ -20,6 +20,7 @@ class FuncionarioController extends Controller
         $digitos = preg_replace('/\D/', '', $busca);
 
         $funcionarios = Funcionario::query()
+            ->when($request->filled('id'), fn ($query) => $query->whereKey($request->integer('id')))
             ->when($busca !== '', function ($query) use ($busca, $digitos) {
                 $query->where(function ($q) use ($busca, $digitos) {
                     $q->where('nome', 'ilike', "%{$busca}%");

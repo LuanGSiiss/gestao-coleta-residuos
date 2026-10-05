@@ -8,7 +8,7 @@
 
 @section('conteudo')
     <x-busca :rota="route('funcionarios.index')" placeholder="Nome ou CPF…">
-        <select name="tipo" class="form-select" style="max-width: 11rem;" aria-label="Filtrar por tipo">
+        <select name="tipo" class="form-select" aria-label="Filtrar por tipo">
             <option value="">Todos os tipos</option>
             @foreach ($tipos as $valor => $rotulo)
                 <option value="{{ $valor }}" @selected((string) request('tipo') === (string) $valor)>
@@ -23,6 +23,7 @@
             <table class="table table-hover align-middle mb-0">
                 <thead class="table-light">
                     <tr>
+                        <th style="width: 6rem;">Código</th>
                         <th>Nome</th>
                         <th style="width: 9.5rem;">CPF</th>
                         <th style="width: 12rem;">Tipo</th>
@@ -34,6 +35,7 @@
                 <tbody>
                     @forelse ($funcionarios as $funcionario)
                         <tr>
+                            <td class="text-secondary">{{ $funcionario->id }}</td>
                             <td>{{ $funcionario->nome }}</td>
                             <td class="text-nowrap">{{ $funcionario->cpf_formatado }}</td>
                             <td>
@@ -53,8 +55,8 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="tabela-vazia">
-                                @if (request('busca') || request('tipo'))
+                            <td colspan="7" class="tabela-vazia">
+                                @if (request()->anyFilled(['id', 'busca', 'tipo']))
                                     Nenhum funcionário encontrado com estes filtros.
                                 @else
                                     Nenhum funcionário cadastrado ainda.

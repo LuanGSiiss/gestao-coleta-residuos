@@ -14,6 +14,7 @@
             <table class="table table-hover align-middle mb-0">
                 <thead class="table-light">
                     <tr>
+                        <th style="width: 6rem;">Código</th>
                         <th>Nome</th>
                         <th style="width: 8rem;">Situação</th>
                         <th style="width: 11rem;" class="text-end">Ações</th>
@@ -22,6 +23,7 @@
                 <tbody>
                     @forelse ($marcas as $marca)
                         <tr>
+                            <td class="text-secondary">{{ $marca->id }}</td>
                             <td>{{ $marca->nome }}</td>
                             <td>
                                 <span class="badge text-bg-{{ $marca->ativo ? 'success' : 'secondary' }}">{{ $marca->ativo ? 'Ativa' : 'Inativa' }}</span>
@@ -33,9 +35,9 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="3" class="tabela-vazia">
-                                @if (request('busca'))
-                                    Nenhuma marca encontrada para esta busca.
+                            <td colspan="4" class="tabela-vazia">
+                                @if (request()->anyFilled(['id', 'busca']))
+                                    Nenhuma marca encontrada com estes filtros.
                                 @else
                                     Nenhuma marca cadastrada ainda.
                                 @endif
