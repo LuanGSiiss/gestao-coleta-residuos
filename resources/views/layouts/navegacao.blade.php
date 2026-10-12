@@ -19,7 +19,7 @@
 
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle {{ request()->routeIs('bairros.*', 'funcionarios.*', 'marcas.*', 'veiculos.*') ? 'active' : '' }}"
-                            href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                           href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             Cadastros
                         </a>
                         <ul class="dropdown-menu">
@@ -27,6 +27,16 @@
                             <li><a class="dropdown-item" href="{{ route('funcionarios.index') }}">Funcionários</a></li>
                             <li><a class="dropdown-item" href="{{ route('marcas.index') }}">Marcas de Veículo</a></li>
                             <li><a class="dropdown-item" href="{{ route('veiculos.index') }}">Veículos</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle {{ request()->routeIs('rotas.*') ? 'active' : '' }}"
+                           href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Rotas
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{{ route('rotas.index') }}">Consultar rotas</a></li>
+                            <li><a class="dropdown-item" href="{{ route('rotas.mapa') }}">Mapa das rotas</a></li>
                         </ul>
                     </li>
                 @endif

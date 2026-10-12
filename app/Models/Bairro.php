@@ -20,10 +20,10 @@ class Bairro extends Model
         return ['ativo' => 'boolean'];
     }
 
-    // public function rotas(): BelongsToMany
-    // {
-    //     return $this->belongsToMany(Rota::class, 'rota_bairro');
-    // }
+    public function rotas(): BelongsToMany
+    {
+        return $this->belongsToMany(Rota::class, 'rota_bairro');
+    }
 
     public function scopeAtivos(Builder $query): Builder
     {

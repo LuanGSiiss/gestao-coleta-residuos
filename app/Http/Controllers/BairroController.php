@@ -20,7 +20,7 @@ class BairroController extends Controller
         $bairros = Bairro::query()
             ->when($request->filled('id'), fn ($query) => $query->whereKey($request->integer('id')))
             ->when($busca !== '', fn ($query) => $query->where('nome', 'ilike', "%{$busca}%"))
-            //->withCount('rotas')
+            ->withCount('rotas')
             ->orderBy('nome')
             ->paginate(15)
             ->withQueryString();

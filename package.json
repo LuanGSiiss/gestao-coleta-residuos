@@ -16,7 +16,9 @@
         "vite": "^7.0.7"
     },
     "dependencies": {
+        "@geoman-io/leaflet-geoman-free": "^2.20.1",
         "@popperjs/core": "^2.11.8",
-        "bootstrap": "^5.3.8"
+        "bootstrap": "^5.3.8",
+        "leaflet": "^1.9.4"
     }
 }

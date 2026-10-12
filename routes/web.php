@@ -6,6 +6,9 @@ use App\Http\Controllers\BairroController;
 use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\VeiculoController;
 use App\Http\Controllers\FuncionarioController;
+use App\Http\Controllers\MapaRotasController;
+use App\Http\Controllers\RotaController;
+use App\Http\Controllers\RotaVersaoController;
 use App\Http\Controllers\SenhaTemporariaController;
 
 Route::redirect('/', '/painel');
@@ -22,6 +25,9 @@ Route::middleware('auth')->group(function () {
         Route::resource('bairros', BairroController::class)->except('show');
         Route::resource('funcionarios', FuncionarioController::class)->except('show');
         Route::resource('veiculos', VeiculoController::class)->except('show');
+        Route::get('/rotas/mapa', [MapaRotasController::class, 'index'])->name('rotas.mapa');
+        Route::get('/rotas/{rota}/versoes/{numero?}', [RotaVersaoController::class, 'index'])->whereNumber('numero')->name('rotas.versoes');
+        Route::resource('rotas', RotaController::class)->except('destroy');
     });
 
     Route::middleware('perfil:TECNICO')->group(function () {

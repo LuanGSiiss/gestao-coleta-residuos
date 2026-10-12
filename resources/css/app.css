@@ -38,8 +38,56 @@
     color: var(--bs-danger);
 }
 
-/* Serve para esconder os elementos controlados pelo Alpine até ele fazer o carregamento. 
-Sem isto, um elemento pode aparecer por um instante antes do Alpine escondê-lo.*/
+/* Serve para esconder os elementos controlados pelo Alpine até ele fazer o carregamento. */
 [x-cloak] {
     display: none !important;
+}
+
+/* Mapa do formulário de rota, fazendo ele ocupar a altura que sobra na tela */
+.mapa-editor {
+    height: calc(100vh - 26rem);
+    min-height: 26rem;
+}
+
+.mapa-visualizacao {
+    height: 34rem;
+}
+
+.leaflet-container {
+    font: inherit;
+}
+
+/* Estilo do quadrado pequeno com a cor da rota, exibido nas listagens e legendas */
+.amostra-cor {
+    display: inline-block;
+    width: 0.9rem;
+    height: 0.9rem;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 0.2rem;
+    vertical-align: -0.1rem;
+}
+
+.lista-bairros {
+    max-height: 9.5rem;
+    overflow-y: auto;
+}
+
+.dados dt {
+    margin-top: 0.75rem;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--bs-secondary-color);
+}
+
+.dados dt:first-child {
+    margin-top: 0;
+}
+
+.dados dd {
+    margin-bottom: 0;
+}
+
+/* Mantém as quebras de linha digitadas */
+.texto-preservado {
+    white-space: pre-line;
 }
