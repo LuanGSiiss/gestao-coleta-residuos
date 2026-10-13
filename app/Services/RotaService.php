@@ -5,6 +5,9 @@ namespace App\Services;
 use App\Models\Rota;
 use App\Models\Usuario;
 use App\Support\Trajeto;
+use App\Models\Execucao;
+use App\Models\RotaVersao;
+use App\Support\TravaExecucoes;
 use Illuminate\Support\Facades\DB;
 
 final class RotaService
@@ -17,7 +20,6 @@ final class RotaService
     {
         return DB::transaction(function () use ($rota, $dados, $bairros, $trajeto, $usuario) {
             if ($rota->exists) {
-                // Bloqueia a linha da rota até o fim da transação.
                 Rota::whereKey($rota->id)->lockForUpdate()->first();
             }
 
@@ -63,5 +65,21 @@ final class RotaService
 
         $rota->versaoAtual()->associate($versao);
         $rota->save();
+
+        $this->atualizarExecucoesFuturas($rota, $versao);
+    }
+
+    /**
+     * Atualiza as execuções futuras relacionadas a rota para que utilizem a nova versão. As demais continuam com a versão com que foram realizadas.
+     */
+    private function atualizarExecucoesFuturas(Rota $rota, RotaVersao $versao): void
+    {
+        TravaExecucoes::adquirir();
+
+        Execucao::query()
+            ->naoIniciadas()
+            ->futuras()
+            ->whereIn('rota_versao_id', RotaVersao::select('id')->where('rota_id', $rota->id))
+            ->update(['rota_versao_id' => $versao->id]);
     }
 }

@@ -18,4 +18,13 @@ enum SituacaoProgramacao: int
             self::ENCERRADA => 'Encerrada',
         };
     }
+
+    /** Retorna a cor usada na classe do badge do Bootstrap nas listagens. */
+    public function cor(): string
+    {
+        return match ($this) {
+            self::ATIVA     => 'success',
+            self::ENCERRADA => 'secondary',
+        };
+    }
 }

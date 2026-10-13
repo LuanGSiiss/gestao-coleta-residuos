@@ -39,6 +39,10 @@
                             <li><a class="dropdown-item" href="{{ route('rotas.mapa') }}">Mapa das rotas</a></li>
                         </ul>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('programacoes.*') ? 'active' : '' }}" 
+                           href="{{ route('programacoes.index') }}">Programações</a>
+                    </li>
                 @endif
 
                 @if (auth()->user()->perfil->administra())

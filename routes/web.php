@@ -10,6 +10,7 @@ use App\Http\Controllers\MapaRotasController;
 use App\Http\Controllers\RotaController;
 use App\Http\Controllers\RotaVersaoController;
 use App\Http\Controllers\SenhaTemporariaController;
+use App\Http\Controllers\ProgramacaoColetaController;
 
 Route::redirect('/', '/painel');
 
@@ -28,7 +29,10 @@ Route::middleware('auth')->group(function () {
         Route::get('/rotas/mapa', [MapaRotasController::class, 'index'])->name('rotas.mapa');
         Route::get('/rotas/{rota}/versoes/{numero?}', [RotaVersaoController::class, 'index'])->whereNumber('numero')->name('rotas.versoes');
         Route::resource('rotas', RotaController::class)->except('destroy');
-    });
+        Route::resource('programacoes', ProgramacaoColetaController::class)->parameters(['programacoes' => 'programacao'])->except('destroy');
+        Route::get('/programacoes/{programacao}/prorrogar', [ProgramacaoColetaController::class, 'prorrogacao'])->name('programacoes.prorrogacao');
+        Route::put('/programacoes/{programacao}/prorrogar', [ProgramacaoColetaController::class, 'prorrogar'])->name('programacoes.prorrogar');
+        Route::post('/programacoes/{programacao}/encerrar', [ProgramacaoColetaController::class, 'encerrar'])->name('programacoes.encerrar');});
 
     Route::middleware('perfil:TECNICO')->group(function () {
         Route::resource('usuarios', UsuarioController::class)->except('show', 'destroy');

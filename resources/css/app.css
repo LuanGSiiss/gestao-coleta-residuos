@@ -91,3 +91,9 @@
 .texto-preservado {
     white-space: pre-line;
 }
+
+/* Lista de caixas de marcação com rolagem. */
+.lista-opcoes {
+    max-height: 12rem;
+    overflow-y: auto;
+}
