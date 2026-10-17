@@ -13,12 +13,9 @@
 @endsection
 
 @section('conteudo')
-    <form id="form-programacao" method="POST"
-          action="{{ $editando ? route('programacoes.update', $programacao) : route('programacoes.store') }}">
+    <form id="form-programacao" method="POST" action="{{ $editando ? route('programacoes.update', $programacao) : route('programacoes.store') }}">
         @csrf
-        @if ($editando) 
-            @method('PUT') 
-        @endif
+        @if ($editando) @method('PUT') @endif
         <input type="hidden" name="voltar" value="{{ Retorno::atual() }}">
 
         @if ($editando)
@@ -26,14 +23,14 @@
                 @if ($futuras === 0)
                     Esta programação não tem execuções futuras ainda não iniciadas: a alteração fica só na programação e vale para as execuções de uma prorrogação.
                 @else
-                    A alteração vale para
-                    {{ $futuras === 1 ? 'a execução futura ainda não iniciada' : "as {$futuras} execuções futuras ainda não iniciadas" }}.
+                    A alteração vale para {{ $futuras === 1 ? 'a execução futura ainda não iniciada' : "as {$futuras} execuções futuras ainda não iniciadas" }}.
                     Execuções atrasadas, em andamento, concluídas e canceladas não mudam.
                 @endif
             </div>
         @elseif (empty($rotas) || empty($motoristas) || empty($veiculos) || $coletores->isEmpty())
             <div class="alert alert-warning">
-                Para cadastrar uma programação, é preciso ter ao menos uma rota ativa com trajeto e um motorista, um coletor e um veículo ativos. Confira os cadastros de
+                Para cadastrar uma programação, é preciso ter ao menos uma rota ativa com trajeto e um
+                motorista, um coletor e um veículo ativos. Confira os cadastros de
                 <a href="{{ route('rotas.index') }}">rotas</a>,
                 <a href="{{ route('funcionarios.index') }}">funcionários</a> e
                 <a href="{{ route('veiculos.index') }}">veículos</a>.
@@ -46,9 +43,7 @@
 
                 <div class="row">
                     <div class="{{ $editando ? 'col-12' : 'col-md-8' }}">
-                        <x-form.input name="descricao" label="Descrição" :value="$programacao->descricao"
-                                      required maxlength="120" autofocus
-                                      placeholder="Coleta convencional — Centro, manhã" />
+                        <x-form.input name="descricao" label="Descrição" :value="$programacao->descricao" required maxlength="120" autofocus placeholder="Coleta convencional — Centro, manhã" />
                     </div>
 
                     @unless ($editando)
@@ -59,19 +54,17 @@
                 </div>
 
                 @if ($editando)
-                    <dl class="dados row mb-3">
+                    <div class="row">
                         <div class="col-sm-4">
-                            <dt>Tipo de coleta</dt>
-                            <dd>{{ $programacao->tipo_coleta->rotulo() }}</dd>
+                            <x-form.leitura label="Tipo de coleta" :valor="$programacao->tipo_coleta->rotulo()" />
                         </div>
                         <div class="col-sm-8">
-                            <dt>Rota</dt>
-                            <dd>
+                            <x-form.leitura label="Rota">
                                 <span class="amostra-cor" style="background-color: {{ $programacao->rota->cor }}"></span>
                                 <span class="ms-1">{{ $programacao->rota->identificacao }} — {{ $programacao->rota->nome }}</span>
-                            </dd>
+                            </x-form.leitura>
                         </div>
-                    </dl>
+                    </div>
                 @else
                     <x-form.select name="rota_id" label="Rota" :opcoes="$rotas" required />
                 @endif
@@ -91,40 +84,7 @@
                     </div>
 
                     <div class="col-md-6">
-                        <div class="mb-3"
-                             x-data="{
-                                 filtro: '',
-                                 normalizar: (texto) => texto.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase(),
-                             }">
-                            <label for="filtro-coletores" class="form-label obrigatorio">Coletores</label>
-
-                            @if ($coletores->isNotEmpty())
-                                <input type="search" id="filtro-coletores" class="form-control form-control-sm mb-2" placeholder="Filtrar coletores…" x-model="filtro">
-
-                                <div class="lista-opcoes border rounded px-2 py-1 {{ $errors->has('coletores') || $errors->has('coletores.*') ? 'border-danger' : '' }}">
-                                    @foreach ($coletores as $coletor)
-                                        <div class="form-check" x-show="normalizar(@js($coletor->nome)).includes(normalizar(filtro))">
-                                            <input class="form-check-input" type="checkbox" name="coletores[]"
-                                                   value="{{ $coletor->id }}" id="coletor-{{ $coletor->id }}"
-                                                   @checked(in_array($coletor->id, $coletoresSelecionados, true))>
-                                            <label class="form-check-label" for="coletor-{{ $coletor->id }}">
-                                                {{ $coletor->nome }}
-                                                @unless ($coletor->ativo)
-                                                    <span class="text-body-secondary">(inativo)</span>
-                                                @endunless
-                                            </label>
-                                        </div>
-                                    @endforeach
-                                </div>
-                            @endif
-
-                            @error('coletores')
-                                <div class="text-danger small mt-1">{{ $message }}</div>
-                            @enderror
-                            @error('coletores.*')
-                                <div class="text-danger small mt-1">{{ $message }}</div>
-                            @enderror
-                        </div>
+                        <x-form.coletores :coletores="$coletores" :selecionados="$coletoresSelecionados" />
                     </div>
                 </div>
             </div>
@@ -134,19 +94,22 @@
             <div class="card-header small fw-semibold">Cronograma</div>
             <div class="card-body">
                 @if ($editando)
-                    <dl class="dados row mb-2">
-                        <div class="col-sm-4">
-                            <dt>Período</dt>
-                            <dd>{{ $programacao->periodo }}</dd>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <x-form.leitura label="Data de início" :valor="$programacao->data_inicio->format('d/m/Y')" />
                         </div>
-                        <div class="col-sm-8">
-                            <dt>Dias da semana</dt>
-                            <dd>{{ $programacao->dias_abreviados }}</dd>
+                        <div class="col-md-4">
+                            <x-form.leitura label="Data de término" :valor="$programacao->data_fim->format('d/m/Y')" />
                         </div>
-                    </dl>
+                    </div>
+
+                    <x-form.leitura label="Dias da semana">
+                        <x-dias-semana :dias="$programacao->dias()" />
+                    </x-form.leitura>
 
                     <p class="small text-body-secondary">
-                        Tipo, rota, período e dias não mudam depois do cadastro. Para estender o período, use <a href="{{ Retorno::link('programacoes.prorrogacao', $programacao) }}">Prorrogar</a>.
+                        Tipo, rota, período e dias não mudam depois do cadastro. Para estender o período, use
+                        <a href="{{ Retorno::link('programacoes.prorrogacao', $programacao) }}">Prorrogar</a>
                         para mudar os demais, encerre esta programação e cadastre outra.
                     </p>
                 @else
@@ -167,7 +130,9 @@
                                 <input type="checkbox" class="btn-check" name="dias_semana[]" value="{{ $dia->value }}"
                                        id="dia-{{ $dia->value }}" autocomplete="off"
                                        @checked(in_array($dia->value, $diasSelecionados, true))>
-                                <label class="btn btn-outline-primary" for="dia-{{ $dia->value }}" title="{{ $dia->rotulo() }}">{{ $dia->abreviado() }}</label>
+                                <label class="btn btn-outline-primary" for="dia-{{ $dia->value }}" title="{{ $dia->rotulo() }}">
+                                    {{ $dia->abreviado() }}
+                                </label>
                             @endforeach
                         </div>
 

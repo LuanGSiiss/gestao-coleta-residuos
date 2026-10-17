@@ -3,18 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Models\Rota;
-use App\Models\Veiculo;
 use App\Support\Retorno;
 use App\Enums\DiaSemana;
 use Illuminate\View\View;
 use App\Enums\TipoColeta;
-use App\Models\Funcionario;
 use App\Support\Cronograma;
 use App\Support\Habilitacao;
 use Illuminate\Http\Request;
+use App\Support\OpcoesAlocacao;
 use App\Models\ProgramacaoColeta;
 use App\Enums\SituacaoProgramacao;
-use Illuminate\Support\Collection;
 use Illuminate\Http\RedirectResponse;
 use App\Http\Requests\ProrrogacaoRequest;
 use App\Services\ProgramacaoColetaService;
@@ -77,25 +75,10 @@ class ProgramacaoColetaController extends Controller
     {
         $programacao->load(['rota', 'motorista', 'veiculo', 'coletores', 'diasSemana']);
 
-        $periodo = in_array($request->query('periodo'), ['proximas', 'anteriores', 'todas'], true) ? $request->query('periodo') : 'proximas';
-
-        $hoje = today()->toDateString();
-
-        $execucoes = $programacao->execucoes()
-            ->with(['motorista', 'veiculo', 'coletores', 'rotaVersao.rota'])
-            ->when($periodo === 'proximas', fn ($query) => $query->where('data', '>=', $hoje)->orderBy('data'))
-            ->when($periodo === 'anteriores', fn ($query) => $query->where('data', '<', $hoje)->orderByDesc('data'))
-            ->when($periodo === 'todas', fn ($query) => $query->orderBy('data'))
-            ->paginate(20)
-            ->withQueryString();
-
         $futuras = $programacao->execucoes()->naoIniciadas()->futuras()->count();
 
         return view('programacoes.show', [
             'programacao' => $programacao,
-            'execucoes'   => $execucoes,
-            'periodo'     => $periodo,
-            // [situação => quantidade], numa consulta só
             'resumo'      => $programacao->execucoes()
                 ->selectRaw('situacao, count(*) as total')
                 ->groupBy('situacao')
@@ -191,9 +174,9 @@ class ProgramacaoColetaController extends Controller
             'dias'                  => DiaSemana::cases(),
             'diasSelecionados'      => array_map('intval', (array) old('dias_semana', [])),
             'rotas'                 => $programacao->exists ? [] : $this->opcoesRotas(),
-            'motoristas'            => $this->opcoesMotoristas($programacao->motorista_id),
-            'veiculos'              => $this->opcoesVeiculos($programacao->veiculo_id),
-            'coletores'             => $this->coletoresParaSelecao($coletoresAtuais),
+            'motoristas'            => OpcoesAlocacao::motoristas($programacao->motorista_id),
+            'veiculos'              => OpcoesAlocacao::veiculos($programacao->veiculo_id),
+            'coletores'             => OpcoesAlocacao::coletores($coletoresAtuais),
             'coletoresSelecionados' => array_map('intval', (array) old('coletores', $coletoresAtuais)),
             'futuras'               => $programacao->exists ? $programacao->execucoes()->naoIniciadas()->futuras()->count() : 0
         ];
@@ -209,43 +192,6 @@ class ProgramacaoColetaController extends Controller
             ->get()
             ->mapWithKeys(fn (Rota $rota) => [$rota->id => "{$rota->identificacao} — {$rota->nome}"])
             ->all();
-    }
-
-    /** Retorna a lista de motorista ativos e mais o já vinculado a esta programação. */
-    private function opcoesMotoristas(?int $atual): array
-    {
-        return Funcionario::query()
-            ->motoristas()
-            ->where(fn ($query) => $query->where('ativo', true)->when($atual, fn ($query, $id) => $query->orWhere('id', $id)))
-            ->orderBy('nome')
-            ->get()
-            ->mapWithKeys(fn (Funcionario $motorista) => [
-                $motorista->id => $motorista->nome . ($motorista->ativo ? '' : ' (inativo)') . ($motorista->cnhVencida() ? ' — CNH vencida' : ''),
-            ])
-            ->all();
-    }
-
-    /** Retorna a lista de veiculos ativos e mais o já vinculado a esta programação. */
-    private function opcoesVeiculos(?int $atual): array
-    {
-        return Veiculo::query()
-            ->where(fn ($query) => $query->where('ativo', true)->when($atual, fn ($query, $id) => $query->orWhere('id', $id)))
-            ->orderBy('placa')
-            ->get()
-            ->mapWithKeys(fn (Veiculo $veiculo) => [
-                $veiculo->id => "{$veiculo->placa_formatada} · {$veiculo->modelo} · {$veiculo->tipo->rotulo()}" . ($veiculo->ativo ? '' : ' (inativo)'),
-            ])
-            ->all();
-    }
-
-    /** Retorna a lista de coletores ativos e mais os já vinculados a esta programação. */
-    private function coletoresParaSelecao(array $atuais): Collection
-    {
-        return Funcionario::query()
-            ->coletores()
-            ->where(fn ($query) => $query->where('ativo', true)->when($atuais, fn ($query, $ids) => $query->orWhereIn('id', $ids)))
-            ->orderBy('nome')
-            ->get();
     }
 
     /** Retorna o texto tratado com base na quantidade, sendo no singular ou plural. */

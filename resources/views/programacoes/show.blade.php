@@ -1,5 +1,5 @@
-@use('App\Enums\SituacaoExecucao')
 @use('App\Support\Retorno')
+@use('App\Enums\SituacaoExecucao')
 @extends('layouts.app')
 @section('titulo', "Programação {$programacao->id}")
 @section('subtitulo', $programacao->descricao)
@@ -7,6 +7,8 @@
 @section('acoes')
     <div class="d-flex flex-wrap gap-2">
         <a href="{{ Retorno::destino(route('programacoes.index')) }}" class="btn btn-outline-secondary">Voltar</a>
+
+        <a href="{{ Retorno::link('execucoes.index', $programacao->filtroDasExecucoes()) }}" class="btn btn-outline-secondary">Execuções</a>
 
         @if ($programacao->ativa())
             <form method="POST" action="{{ route('programacoes.encerrar', $programacao) }}" data-confirmacao="{{ $confirmacao }}" data-confirmacao-acao="Encerrar">
@@ -22,164 +24,136 @@
 @endsection
 
 @section('conteudo')
-    <div class="row g-3">
-        <div class="col-lg-4">
-            <div class="card">
-                <div class="card-body">
-                    <dl class="dados mb-0">
-                        <dt>Código</dt>
-                        <dd>{{ $programacao->id }}</dd>
+    <div class="card mb-3">
+        <div class="card-header small fw-semibold">Execuções</div>
+        <div class="card-body">
+            <div class="row row-cols-2 row-cols-sm-3 row-cols-lg-5 g-2">
+                @foreach (SituacaoExecucao::cases() as $situacao)
+                    <div class="col">
+                        <a href="{{ Retorno::link('execucoes.index', ['programacao' => $programacao->id, 'situacao' => $situacao->value]) }}"
+                           class="total-situacao" style="--cor-situacao: var(--bs-{{ $situacao->cor() }})">
+                            <span class="small">{{ $situacao->rotulo() }}</span>
+                            <strong>{{ $resumo[$situacao->value] ?? 0 }}</strong>
+                        </a>
+                    </div>
 
-                        <dt>Situação</dt>
-                        <dd>
-                            <span class="badge text-bg-{{ $programacao->situacao->cor() }}">{{ $programacao->situacao->rotulo() }}</span>
-                            @if ($programacao->encerrada_em)
-                                <span class="small text-body-secondary">em {{ $programacao->encerrada_em->format('d/m/Y H:i') }}</span>
-                            @endif
-                        </dd>
+                    @if ($situacao === SituacaoExecucao::NAO_INICIADA)
+                        <div class="col">
+                            <a href="{{ Retorno::link('execucoes.index', ['programacao' => $programacao->id, 'situacao' => 'atrasadas']) }}"
+                               class="total-situacao" style="--cor-situacao: var(--bs-warning)">
+                                <span class="small">Atrasada</span>
+                                <strong>{{ $atrasadas }}</strong>
+                            </a>
+                        </div>
+                    @endif
+                @endforeach
+            </div>
+        </div>
+    </div>
 
-                        <dt>Tipo de coleta</dt>
-                        <dd>{{ $programacao->tipo_coleta->rotulo() }}</dd>
+    <div class="card mb-3">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-sm-4 col-md-3">
+                    <x-form.leitura label="Código" :valor="$programacao->id" />
+                </div>
+                <div class="col-sm-8 col-md-9">
+                    <x-form.leitura label="Situação">
+                        <span class="badge text-bg-{{ $programacao->situacao->cor() }}">
+                            {{ $programacao->situacao->rotulo() }}
+                        </span>
+                        @if ($programacao->encerrada_em)
+                            <span class="small text-body-secondary ms-1">
+                                em {{ $programacao->encerrada_em->format('d/m/Y H:i') }}
+                            </span>
+                        @endif
+                    </x-form.leitura>
+                </div>
+            </div>
 
-                        <dt>Rota</dt>
-                        <dd>
-                            <span class="amostra-cor" style="background-color: {{ $programacao->rota->cor }}"></span>
-                            <a href="{{ Retorno::link('rotas.show', $programacao->rota) }}" class="ms-1">{{ $programacao->rota->identificacao }} — {{ $programacao->rota->nome }}</a>
-                        </dd>
+            <div class="row">
+                <div class="col-md-8">
+                    <x-form.leitura label="Descrição" :valor="$programacao->descricao" />
+                </div>
+                <div class="col-md-4">
+                    <x-form.leitura label="Tipo de coleta" :valor="$programacao->tipo_coleta->rotulo()" />
+                </div>
+            </div>
 
-                        <dt>Motorista</dt>
-                        <dd>
-                            {{ $programacao->motorista->nome }}
-                            @unless ($programacao->motorista->ativo)
-                                <span class="text-body-secondary">(inativo)</span>
-                            @endunless
-                            @if ($programacao->motorista->cnhVencida())
-                                <span class="badge text-bg-danger ms-1">CNH vencida</span>
-                            @endif
-                        </dd>
+            <x-form.leitura label="Rota">
+                <span class="amostra-cor" style="background-color: {{ $programacao->rota->cor }}"></span>
+                <a href="{{ Retorno::link('rotas.show', $programacao->rota) }}" class="ms-1">{{ $programacao->rota->identificacao }} — {{ $programacao->rota->nome }}</a>
+                @unless ($programacao->rota->ativo)
+                    <span class="text-body-secondary">(inativa)</span>
+                @endunless
+            </x-form.leitura>
 
-                        <dt>Coletores</dt>
-                        <dd>
-                            @foreach ($programacao->coletores as $coletor)
-                                <div>
-                                    {{ $coletor->nome }}
-                                    @unless ($coletor->ativo)
-                                        <span class="text-body-secondary">(inativo)</span>
-                                    @endunless
-                                </div>
-                            @endforeach
-                        </dd>
+            <x-form.leitura label="Orientações" :valor="$programacao->orientacoes" multilinha />
+        </div>
+    </div>
 
-                        <dt>Veículo</dt>
-                        <dd>
-                            {{ $programacao->veiculo->placa_formatada }} · {{ $programacao->veiculo->modelo }} · {{ $programacao->veiculo->tipo->rotulo() }}
-                            @unless ($programacao->veiculo->ativo)
-                                <span class="text-body-secondary">(inativo)</span>
-                            @endunless
-                        </dd>
+    <div class="card mb-3">
+        <div class="card-header small fw-semibold">Equipe e veículo</div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <x-form.leitura label="Motorista">
+                        {{ $programacao->motorista->nome }}
+                        @unless ($programacao->motorista->ativo)
+                            <span class="text-body-secondary">(inativo)</span>
+                        @endunless
+                        @if ($programacao->motorista->cnhVencida())
+                            <span class="badge text-bg-danger ms-1">CNH vencida</span>
+                        @endif
+                    </x-form.leitura>
 
-                        <dt>Período</dt>
-                        <dd>{{ $programacao->periodo }}</dd>
+                    <x-form.leitura label="Veículo">
+                        {{ $programacao->veiculo->placa_formatada }} · {{ $programacao->veiculo->modelo }} · {{ $programacao->veiculo->tipo->rotulo() }}
+                        @unless ($programacao->veiculo->ativo)
+                            <span class="text-body-secondary">(inativo)</span>
+                        @endunless
+                    </x-form.leitura>
+                </div>
 
-                        <dt>Dias e horário</dt>
-                        <dd>{{ $programacao->dias_abreviados }}, das {{ $programacao->horario }}</dd>
-
-                        <dt>Orientações</dt>
-                        <dd class="texto-preservado">{{ $programacao->orientacoes ?? '—' }}</dd>
-                    </dl>
+                <div class="col-md-6">
+                    <x-form.leitura label="Coletores">
+                        @foreach ($programacao->coletores as $coletor)
+                            <div>
+                                {{ $coletor->nome }}
+                                @unless ($coletor->ativo)
+                                    <span class="text-body-secondary">(inativo)</span>
+                                @endunless
+                            </div>
+                        @endforeach
+                    </x-form.leitura>
                 </div>
             </div>
         </div>
+    </div>
 
-        <div class="col-lg-8">
-            <div class="card">
-                <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
-                    <div class="d-flex flex-wrap gap-3 small">
-                        @foreach (SituacaoExecucao::cases() as $situacao)
-                            <span>
-                                <span class="badge text-bg-{{ $situacao->cor() }}">{{ $resumo[$situacao->value] ?? 0 }}</span>
-                                {{ $situacao->rotulo() }}
-                            </span>
-                        @endforeach
-
-                        @if ($atrasadas > 0)
-                            <span>
-                                <span class="badge text-bg-warning">{{ $atrasadas }}</span>
-                                Atrasada{{ $atrasadas === 1 ? '' : 's' }}
-                            </span>
-                        @endif
-                    </div>
-
-                    <ul class="nav nav-pills small">
-                        @foreach (['proximas' => 'Próximas', 'anteriores' => 'Anteriores', 'todas' => 'Todas'] as $valor => $rotulo)
-                            <li class="nav-item">
-                                <a class="nav-link py-1 {{ $periodo === $valor ? 'active' : '' }}"
-                                   href="{{ Retorno::manter('programacoes.show', [$programacao, 'periodo' => $valor]) }}"
-                                   @if ($periodo === $valor) aria-current="page" @endif>{{ $rotulo }}</a>
-                            </li>
-                        @endforeach
-                    </ul>
+    <div class="card">
+        <div class="card-header small fw-semibold">Cronograma</div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4">
+                    <x-form.leitura label="Data de início" :valor="$programacao->data_inicio->format('d/m/Y')" />
                 </div>
-
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0">
-                        <thead class="table-light">
-                            <tr>
-                                <th style="width: 8.5rem;">Data</th>
-                                <th style="width: 7.5rem;">Horário</th>
-                                <th>Motorista</th>
-                                <th>Coletores</th>
-                                <th style="width: 6.5rem;">Veículo</th>
-                                <th style="width: 6rem;">Trajeto</th>
-                                <th style="width: 9rem;">Situação</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse ($execucoes as $execucao)
-                                <tr>
-                                    <td class="text-nowrap">
-                                        {{ $execucao->data->format('d/m/Y') }}
-                                        <span class="text-secondary small">{{ $execucao->diaSemana()->abreviado() }}</span>
-                                    </td>
-                                    <td class="text-nowrap">{{ $execucao->hora_inicio_prevista }}–{{ $execucao->hora_fim_prevista }}</td>
-                                    <td>{{ $execucao->motorista->nome }}</td>
-                                    <td class="small">{{ $execucao->coletores->pluck('nome')->join(', ') }}</td>
-                                    <td class="text-nowrap">{{ $execucao->veiculo->placa_formatada }}</td>
-                                    <td class="text-nowrap">
-                                        <a href="{{ Retorno::link('rotas.versoes', [$execucao->rotaVersao->rota, $execucao->rotaVersao->numero]) }}">
-                                            {{ $execucao->rotaVersao->rota->identificacao }} v{{ $execucao->rotaVersao->numero }}
-                                        </a>
-                                    </td>
-                                    <td class="text-nowrap">
-                                        <span class="badge text-bg-{{ $execucao->situacao->cor() }}"
-                                              @if ($execucao->motivo_cancelamento) title="{{ $execucao->motivo_cancelamento }}" @endif>
-                                            {{ $execucao->situacao->rotulo() }}
-                                        </span>
-                                        @if ($execucao->atrasada())
-                                            <span class="badge text-bg-warning">Atrasada</span>
-                                        @endif
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="7" class="tabela-vazia">
-                                        @if ($periodo === 'proximas')
-                                            Nenhuma execução de hoje em diante.
-                                        @elseif ($periodo === 'anteriores')
-                                            Nenhuma execução anterior a hoje.
-                                        @else
-                                            Nenhuma execução.
-                                        @endif
-                                    </td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
+                <div class="col-md-4">
+                    <x-form.leitura label="Data de término" :valor="$programacao->data_fim->format('d/m/Y')" />
                 </div>
             </div>
 
-            <div class="mt-3">
-                {{ $execucoes->links() }}
+            <x-form.leitura label="Dias da semana">
+                <x-dias-semana :dias="$programacao->dias()" />
+            </x-form.leitura>
+
+            <div class="row">
+                <div class="col-md-4">
+                    <x-form.leitura label="Hora de início" :valor="$programacao->hora_inicio" />
+                </div>
+                <div class="col-md-4">
+                    <x-form.leitura label="Hora de término" :valor="$programacao->hora_fim" />
+                </div>
             </div>
         </div>
     </div>

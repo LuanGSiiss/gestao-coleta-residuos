@@ -1,11 +1,10 @@
+@use('App\Enums\PerfilUsuario')
+
 <nav class="navbar navbar-expand-lg navbar-dark navbar-marca">
     <div class="container">
-        <a class="navbar-brand fw-semibold" href="{{ route('painel') }}">Gestão da Coleta de Resíduos</a>
+        <a class="navbar-brand fw-semibold" href="{{ route('tela-inicial') }}">Gestão da Coleta de Resíduos</a>
 
-        <button class="navbar-toggler" type="button"
-                data-bs-toggle="collapse" data-bs-target="#menu-principal"
-                aria-controls="menu-principal" aria-expanded="false"
-                aria-label="Alternar navegação">
+        <button class="navbar-toggler" type="button"data-bs-toggle="collapse" data-bs-target="#menu-principal" aria-controls="menu-principal" aria-expanded="false" aria-label="Alternar navegação">
             <span class="navbar-toggler-icon"></span>
         </button>
 
@@ -25,13 +24,13 @@
                         <ul class="dropdown-menu">
                             <li><a class="dropdown-item" href="{{ route('bairros.index') }}">Bairros</a></li>
                             <li><a class="dropdown-item" href="{{ route('funcionarios.index') }}">Funcionários</a></li>
-                            <li><a class="dropdown-item" href="{{ route('marcas.index') }}">Marcas de Veículo</a></li>
+                            <li><a class="dropdown-item" href="{{ route('marcas.index') }}">Marcas de veículo</a></li>
                             <li><a class="dropdown-item" href="{{ route('veiculos.index') }}">Veículos</a></li>
                         </ul>
                     </li>
+
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle {{ request()->routeIs('rotas.*') ? 'active' : '' }}"
-                           href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <a class="nav-link dropdown-toggle {{ request()->routeIs('rotas.*') ? 'active' : '' }}" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             Rotas
                         </a>
                         <ul class="dropdown-menu">
@@ -39,9 +38,19 @@
                             <li><a class="dropdown-item" href="{{ route('rotas.mapa') }}">Mapa das rotas</a></li>
                         </ul>
                     </li>
+
                     <li class="nav-item">
-                        <a class="nav-link {{ request()->routeIs('programacoes.*') ? 'active' : '' }}" 
-                           href="{{ route('programacoes.index') }}">Programações</a>
+                        <a class="nav-link {{ request()->routeIs('programacoes.*') ? 'active' : '' }}" href="{{ route('programacoes.index') }}">Programações</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('execucoes.*') ? 'active' : '' }}" href="{{ route('execucoes.index') }}">Execuções</a>
+                    </li>
+                @endif
+
+                @if (auth()->user()->perfil === PerfilUsuario::MOTORISTA)
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('coletas.*') ? 'active' : '' }}" href="{{ route('coletas.index') }}">Minhas coletas</a>
                     </li>
                 @endif
 
@@ -55,10 +64,14 @@
 
             <ul class="navbar-nav">
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">{{ auth()->user()->nome }}</a>
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        {{ auth()->user()->nome }}
+                    </a>
                     <ul class="dropdown-menu dropdown-menu-end">
                         <li>
-                            <span class="dropdown-item-text small text-secondary">{{ auth()->user()->perfil->rotulo() }}</span>
+                            <span class="dropdown-item-text small text-secondary">
+                                {{ auth()->user()->perfil->rotulo() }}
+                            </span>
                         </li>
                         <li><hr class="dropdown-divider"></li>
                         <li>

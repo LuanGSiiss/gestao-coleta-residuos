@@ -4,12 +4,15 @@ namespace App\Models;
 
 use App\Casts\Hora;
 use App\Enums\DiaSemana;
+use App\Support\Duracao;
 use Carbon\CarbonImmutable;
 use App\Enums\SituacaoExecucao;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Execucao extends Model
 {
@@ -65,6 +68,11 @@ class Execucao extends Model
         return $this->belongsToMany(Funcionario::class, 'execucao_coletor')->orderBy('funcionario.nome');
     }
 
+    public function ocorrencias(): HasMany
+    {
+        return $this->hasMany(Ocorrencia::class)->orderBy('data_hora')->orderBy('id');
+    }
+
     public function scopeNaoIniciadas(Builder $query): Builder
     {
         return $query->where('execucao.situacao', SituacaoExecucao::NAO_INICIADA->value);
@@ -90,6 +98,18 @@ class Execucao extends Model
             ->whereRaw('(execucao.data + execucao.hora_inicio_prevista) <= ?', [now()->toDateTimeString()]);
     }
 
+    /**
+     * Retorna as execuções que o motorista pode ver, sendo as que ele é motorista e as de hoje ou em andamento.
+     */
+    public function scopeDoMotorista(Builder $query, int $funcionarioId): Builder
+    {
+        return $query
+            ->where('execucao.motorista_id', $funcionarioId)
+            ->where(fn (Builder $query) => $query
+                ->where('execucao.data', today()->toDateString())
+                ->orWhere('execucao.situacao', SituacaoExecucao::EM_ANDAMENTO->value));
+    }
+
     public function inicioPrevisto(): CarbonImmutable
     {
         return $this->data->setTimeFromTimeString($this->hora_inicio_prevista);
@@ -103,6 +123,64 @@ class Execucao extends Model
     public function diaSemana(): DiaSemana
     {
         return DiaSemana::daData($this->data);
+    }
+
+    /** Retorna o impedimento para alterar a execução, caso exista. */
+    public function impedimentoParaAlterar(): ?string
+    {
+        if ($this->situacao !== SituacaoExecucao::NAO_INICIADA) {
+            return 'Esta execução está ' . mb_strtolower($this->situacao->rotulo()) . ' e não pode mais ser alterada.';
+        }
+
+        if ($this->data->lt(today())) {
+            return 'Esta execução é de uma data passada e não pode mais ser alterada.';
+        }
+
+        return null;
+    }
+
+    /** Retorna o impedimento para iniciar a execução, caso exista. */
+    public function impedimentoParaIniciar(): ?string
+    {
+        if (!$this->situacao->podeIrPara(SituacaoExecucao::EM_ANDAMENTO)) {
+            return 'Esta coleta está ' . mb_strtolower($this->situacao->rotulo()) . ' e não pode ser iniciada.';
+        }
+
+        if (!$this->data->isToday()) {
+            return 'A coleta só pode ser iniciada na data prevista, ' . $this->data->format('d/m/Y') . '.';
+        }
+
+        return null;
+    }
+
+    /** Retorna o impedimento para concluir a execução, caso exista. */
+    public function impedimentoParaConcluir(): ?string
+    {
+        return $this->situacao->podeIrPara(SituacaoExecucao::CONCLUIDA) ? null : 'Só uma coleta em andamento pode ser concluída, e esta está ' . mb_strtolower($this->situacao->rotulo()) . '.';
+    }
+
+    /** Retorna o impedimento para cancelar a execução, caso exista. */
+    public function impedimentoParaCancelar(): ?string
+    {
+        return $this->situacao->podeIrPara(SituacaoExecucao::CANCELADA) ? null : 'Esta execução já está ' . mb_strtolower($this->situacao->rotulo()) . ', e essa situação é final.';
+    }
+
+    /** Retorna o impedimento para registrar uma ocorrência para a execução, caso exista. */
+    public function impedimentoParaOcorrencia(): ?string
+    {
+        return $this->data->gt(today()) ? 'Ocorrências registram o que já aconteceu, e esta coleta é de ' . $this->data->format('d/m/Y') . '.' : null;
+    }
+
+    /**
+     * Registra uma ocorrência para execução. 
+     * O autor é o próprio usuário logado.
+     */
+    public function registrarOcorrencia(array $dados, Usuario $autor): Ocorrencia
+    {
+        $ocorrencia = new Ocorrencia($dados);
+        $ocorrencia->usuario()->associate($autor);
+
+        return $this->ocorrencias()->save($ocorrencia);
     }
 
     /**
@@ -122,5 +200,29 @@ class Execucao extends Model
             'orientacoes'          => $this->orientacoes,
             'coletores'            => $coletores,
         ];
+    }
+
+    /** Retorna o tempo total da execução no formato "3 h 25 min", somente as informações de iniciada_em e concluida_em.*/
+    protected function tempoTotal(): Attribute
+    {
+        return Attribute::get(fn () => $this->iniciada_em && $this->concluida_em
+            ? Duracao::formatar(Duracao::minutosEntre($this->iniciada_em, $this->concluida_em))
+            : null);
+    }
+
+    /** Retorna a quilometragem no formato "45,30 km". */
+    protected function quilometragemFormatada(): Attribute
+    {
+        return Attribute::get(fn () => $this->quilometragem === null
+            ? null
+            : number_format((float) $this->quilometragem, 2, ',', '.') . ' km');
+    }
+
+    /** Retorna a quantidade no formato "8.450,00 kg". */
+    protected function quantidadeFormatada(): Attribute
+    {
+        return Attribute::get(fn () => $this->quantidade_kg === null
+            ? null
+            : number_format((float) $this->quantidade_kg, 2, ',', '.') . ' kg');
     }
 }

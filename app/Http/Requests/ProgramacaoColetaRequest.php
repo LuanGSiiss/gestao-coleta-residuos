@@ -2,21 +2,20 @@
 
 namespace App\Http\Requests;
 
-use App\Models\Veiculo;
 use App\Enums\DiaSemana;
 use App\Enums\TipoColeta;
-use App\Models\Funcionario;
 use App\Support\Cronograma;
-use App\Support\Habilitacao;
 use App\Enums\TipoFuncionario;
 use Illuminate\Validation\Rule;
-use App\Models\ProgramacaoColeta;
 use Illuminate\Validation\Validator;
 use Illuminate\Validation\Rules\Exists;
 use Illuminate\Foundation\Http\FormRequest;
+use App\Http\Requests\Concerns\ValidaAlocacao;
 
 class ProgramacaoColetaRequest extends FormRequest
 {
+    use ValidaAlocacao;
+
     public function authorize(): bool
     {
         return true;
@@ -34,7 +33,7 @@ class ProgramacaoColetaRequest extends FormRequest
                 'integer',
                 $this->regraFuncionario(TipoFuncionario::MOTORISTA, $programacao ? [$programacao->motorista_id] : []),
             ],
-            'veiculo_id'   => ['required', 'integer', $this->regraVeiculo($programacao)],
+            'veiculo_id'   => ['required', 'integer', $this->regraVeiculo($programacao?->veiculo_id)],
             'coletores'    => ['required', 'array', 'min:1', 'max:10'],
             'coletores.*'  => ['integer', 'distinct', $this->regraFuncionario(TipoFuncionario::COLETOR, $coletoresAtuais)],
             'hora_inicio'  => ['required', 'date_format:H:i'],
@@ -61,9 +60,11 @@ class ProgramacaoColetaRequest extends FormRequest
      */
     public function after(): array
     {
+        $programacao = $this->route('programacao');
+
         return [
             fn (Validator $validator) => $this->validarPeriodo($validator),
-            fn (Validator $validator) => $this->validarHabilitacao($validator),
+            fn (Validator $validator) => $this->validarHabilitacao($validator, $programacao?->motorista_id, $programacao?->veiculo_id)
         ];
     }
 
@@ -144,34 +145,6 @@ class ProgramacaoColetaRequest extends FormRequest
     }
 
     /**
-     * Valida o periodo informando. Garantindo que o motorista não possua CNH vencida e tenha categoria C ou superior quando for um veiculo compactador. 
-     * Se não for alterado os dados de motorista ou veiculo, apenas exibe um aviso.
-     */
-    private function validarHabilitacao(Validator $validator): void
-    {
-        if ($validator->errors()->hasAny(['motorista_id', 'veiculo_id'])) {
-            return;
-        }
-
-        $programacao = $this->route('programacao');
-        $motoristaId = $this->integer('motorista_id');
-        $veiculoId = $this->integer('veiculo_id');
-
-        if ($programacao !== null && $motoristaId === (int) $programacao->motorista_id && $veiculoId === (int) $programacao->veiculo_id) {
-            return;
-        }
-
-        $impedimentos = Habilitacao::impedimentos(
-            Funcionario::findOrFail($motoristaId),
-            Veiculo::findOrFail($veiculoId),
-        );
-
-        foreach ($impedimentos as $impedimento) {
-            $validator->errors()->add('motorista_id', $impedimento);
-        }
-    }
-
-    /**
      * Valida para que a rota seja ativa e com trajeto.
      */
     private function regraRota(): Exists
@@ -179,31 +152,5 @@ class ProgramacaoColetaRequest extends FormRequest
         return Rule::exists('rota', 'id')
             ->where('ativo', 1)
             ->whereNotNull('versao_atual_id');
-    }
-
-    /** Valida para que o funcionário seja do tipo certo e ativo. */
-    private function regraFuncionario(TipoFuncionario $tipo, array $vinculados): Exists
-    {
-        return Rule::exists('funcionario', 'id')
-            ->where('tipo', $tipo->value)
-            ->where(function ($query) use ($vinculados) {
-                $query->where('ativo', 1);
-
-                if ($vinculados !== []) {
-                    $query->orWhereIn('id', $vinculados);
-                }
-            });
-    }
-
-    /** Valida para que o veículo esteja ativo. */
-    private function regraVeiculo(?ProgramacaoColeta $programacao): Exists
-    {
-        return Rule::exists('veiculo', 'id')->where(function ($query) use ($programacao) {
-            $query->where('ativo', 1);
-
-            if ($programacao) {
-                $query->orWhere('id', $programacao->veiculo_id);
-            }
-        });
     }
 }

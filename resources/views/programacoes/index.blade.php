@@ -58,7 +58,7 @@
                         <th style="width: 9rem;">Horário</th>
                         <th style="width: 13rem;">Período</th>
                         <th style="width: 7rem;">Situação</th>
-                        <th style="width: 9rem;" class="text-end">Ações</th>
+                        <th style="width: 14rem;" class="text-end">Ações</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -81,6 +81,7 @@
                             </td>
                             <td class="text-end text-nowrap">
                                 <a href="{{ Retorno::link('programacoes.show', $programacao) }}" class="btn btn-sm btn-outline-secondary">Ver</a>
+                                <a href="{{ Retorno::link('execucoes.index', $programacao->filtroDasExecucoes()) }}" class="btn btn-sm btn-outline-secondary">Execuções</a>
                                 @if ($programacao->ativa())
                                     <a href="{{ Retorno::link('programacoes.edit', $programacao) }}" class="btn btn-sm btn-outline-secondary">Editar</a>
                                 @endif

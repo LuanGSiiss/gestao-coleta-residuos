@@ -121,6 +121,15 @@ class ProgramacaoColeta extends Model
         return $diaSeguinte->gt($hoje) ? $diaSeguinte : $hoje;
     }
 
+    /**
+     * Retorna o valores dos filtros utilizados na consulta de execuções acessada a partir da programação. 
+     * Se houver dias para frente, começa hoje. Se estiver encerrada ou já terminada, mostra todas.
+     */
+    public function filtroDasExecucoes(): array
+    {
+        return $this->ativa() && $this->data_fim->gte(today()) ? ['programacao' => $this->id, 'de' => today()->toDateString()] : ['programacao' => $this->id];
+    }
+
     /** Retorna os dias da programação abreviados. */
     protected function diasAbreviados(): Attribute
     {
