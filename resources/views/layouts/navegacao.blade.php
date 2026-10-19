@@ -46,6 +46,9 @@
                     <li class="nav-item">
                         <a class="nav-link {{ request()->routeIs('execucoes.*') ? 'active' : '' }}" href="{{ route('execucoes.index') }}">Execuções</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('indicadores') ? 'active' : '' }}" href="{{ route('indicadores') }}">Indicadores</a>
+                    </li>
                 @endif
 
                 @if (auth()->user()->perfil === PerfilUsuario::MOTORISTA)

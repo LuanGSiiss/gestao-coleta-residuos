@@ -137,3 +137,72 @@
     min-height: 16rem;
     max-height: 30rem;
 }
+
+/* Estilos para a coluna de cada situação no painel. */
+.coluna-painel {
+    border-top: 0.25rem solid var(--cor-situacao, var(--bs-border-color));
+}
+
+/* O destaque de cada execução do painel. */
+.execucao-painel-atrasada {
+    --cor-destaque: var(--bs-warning);
+}
+.execucao-painel-ocorrencia {
+    --cor-destaque: var(--bs-danger);
+}
+.execucao-painel-atrasada.execucao-painel-ocorrencia {
+    --cor-destaque: linear-gradient(var(--bs-warning) 50%, var(--bs-danger) 50%);
+}
+
+.execucao-painel-atrasada::before,
+.execucao-painel-ocorrencia::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 0.3rem;
+    background: var(--cor-destaque);
+}
+
+/* Corta textos longos no fim da segunda linha, com reticências. */
+.limite-2-linhas {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+}
+
+.indicador-resumo {
+    height: 100%;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--bs-border-color);
+    border-radius: var(--bs-border-radius);
+}
+
+.indicador-resumo strong {
+    display: block;
+    font-size: 1.5rem;
+    font-weight: 600;
+    line-height: 1.2;
+}
+
+/* Definição de váriaveis para as cores utilizadas. */
+:root {
+    --grafico-registrada: #3a6aa8;
+    --grafico-prevista: #8f8d85;
+    --grafico-convencional: #3a6aa8;
+    --grafico-seletiva: #d95926;
+}
+
+.grafico {
+    position: relative;
+}
+
+.grafico canvas {
+    max-width: 100%;
+}
+
+.tabela-numeros td {
+    font-variant-numeric: tabular-nums;
+}

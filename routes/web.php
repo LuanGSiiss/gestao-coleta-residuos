@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RotaController;
 use App\Http\Controllers\MarcaController;
 use App\Http\Controllers\BairroController;
+use App\Http\Controllers\PainelController;
 use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\VeiculoController;
 use App\Http\Controllers\ExecucaoController;
@@ -11,6 +12,7 @@ use App\Http\Controllers\MapaRotasController;
 use App\Http\Controllers\OcorrenciaController;
 use App\Http\Controllers\RotaVersaoController;
 use App\Http\Controllers\FuncionarioController;
+use App\Http\Controllers\IndicadoresController;
 use App\Http\Controllers\TelaInicialController;
 use App\Http\Controllers\MinhasColetasController;
 use App\Http\Controllers\SenhaTemporariaController;
@@ -24,7 +26,8 @@ Route::middleware('auth')->group(function () {
     Route::put('/senha/temporaria', [SenhaTemporariaController::class, 'update'])->name('senha.temporaria.update');
 
     Route::middleware('perfil:TECNICO,GESTOR')->group(function () {
-        Route::view('/painel', 'painel')->name('painel');
+        Route::get('/painel', PainelController::class)->name('painel');
+        Route::get('/indicadores', IndicadoresController::class)->name('indicadores');
 
         Route::resource('marcas',  MarcaController::class)->except('show');
         Route::resource('bairros', BairroController::class)->except('show');

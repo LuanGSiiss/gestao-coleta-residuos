@@ -7,6 +7,7 @@ use DateTimeImmutable;
 use App\Models\Veiculo;
 use App\Models\Execucao;
 use App\Support\Retorno;
+use App\Enums\TipoColeta;
 use Illuminate\View\View;
 use App\Models\RotaVersao;
 use App\Models\Funcionario;
@@ -49,6 +50,11 @@ class ExecucaoController extends Controller
             ->when($request->filled('veiculo'), fn ($query) => $query->where('veiculo_id', $request->integer('veiculo')))
             ->when($situacao === 'atrasadas', fn ($query) => $query->atrasadas())
             ->when(SituacaoExecucao::tryFrom((int) $situacao), fn ($query, $valor) => $query->where('situacao', $valor->value))
+            ->when(TipoColeta::tryFrom($request->integer('tipo')), fn ($query, $tipo) => $query->whereIn(
+                'programacao_coleta_id',
+                ProgramacaoColeta::select('id')->where('tipo_coleta', $tipo->value),
+            ))
+            ->when($request->boolean('ocorrencias'), fn ($query) => $query->has('ocorrencias'))
             ->orderBy('data')
             ->orderBy('hora_inicio_prevista')
             ->orderBy('id')
@@ -64,6 +70,7 @@ class ExecucaoController extends Controller
             'rotas'        => Rota::orderBy('identificacao')->get(),
             'motoristas'   => Funcionario::motoristas()->orderBy('nome')->get(),
             'veiculos'     => Veiculo::orderBy('placa')->get(),
+            'tipos'        => TipoColeta::opcoes(),
         ]);
     }
 

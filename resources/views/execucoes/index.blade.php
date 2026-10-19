@@ -91,13 +91,25 @@
             </select>
         </div>
 
-        <div class="col-12 d-flex flex-wrap align-items-center gap-2">
+        <div class="col-sm-4 col-lg-3">
+            <select name="tipo" class="form-select" aria-label="Filtrar por tipo de coleta">
+                <option value="">Todos os tipos de coleta</option>
+                @foreach ($tipos as $valor => $rotulo)
+                    <option value="{{ $valor }}" @selected((string) request('tipo') === (string) $valor)>{{ $rotulo }}</option>
+                @endforeach
+            </select>
+        </div>
+
+        <div class="col-sm-8 col-lg-9 d-flex flex-wrap align-items-center gap-2">
+            <div class="form-check mb-0 me-2">
+                <input type="checkbox" name="ocorrencias" value="1" id="filtro-ocorrencias" class="form-check-input" @checked(request()->boolean('ocorrencias'))>
+                <label for="filtro-ocorrencias" class="form-check-label">Só com ocorrências</label>
+            </div>
+
             <button type="submit" class="btn btn-outline-secondary">Buscar</button>
             <a href="{{ Retorno::manter('execucoes.index') }}" class="btn btn-outline-secondary">Limpar</a>
 
-            <span class="small text-body-secondary ms-sm-auto">
-                {{ $execucoes->total() === 1 ? '1 execução' : "{$execucoes->total()} execuções" }}
-            </span>
+            <span class="small text-body-secondary ms-sm-auto">{{ $execucoes->total() === 1 ? '1 execução' : "{$execucoes->total()} execuções" }}</span>
         </div>
     </form>
 
