@@ -187,9 +187,9 @@ class Execucao extends Model
      * Retorna os dados que a programação define para cada execução, no mesmo formato de ProgramacaoColeta::dadosPrevistos.
      * Utilizado para comparar se uma execução teve os dados alterados em comparação com a programação.
      */
-    public function dadosPrevistos(): array
+    public function dadosPrevistos(?array $coletores = null): array
     {
-        $coletores = $this->coletores->pluck('id')->map(fn ($id) => (int) $id)->all();
+        $coletores = array_map('intval', $coletores ?? $this->coletores->pluck('id')->all());
         sort($coletores);
 
         return [
