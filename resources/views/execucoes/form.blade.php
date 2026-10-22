@@ -1,11 +1,14 @@
-@use('App\Support\Retorno')
+@use('App\Support\Voltar')
 @extends('layouts.app')
+
+@php $voltar = Voltar::url(route('execucoes.show', $execucao)); @endphp
+
 @section('titulo', "Alterar execução {$execucao->id}")
 @section('subtitulo', $execucao->data->format('d/m/Y') . ', ' . mb_strtolower($execucao->diaSemana()->rotulo()) . " — {$execucao->programacao->descricao}")
 
 @section('acoes')
     <div class="d-flex gap-2">
-        <a href="{{ Retorno::destino(route('execucoes.show', $execucao)) }}" class="btn btn-outline-secondary">Voltar</a>
+        <a href="{{ $voltar }}" class="btn btn-outline-secondary">Voltar</a>
         <button type="submit" form="form-execucao" class="btn btn-primary">Salvar alterações</button>
     </div>
 @endsection
@@ -16,7 +19,7 @@
     <form id="form-execucao" method="POST" action="{{ route('execucoes.update', $execucao) }}">
         @csrf
         @method('PUT')
-        <input type="hidden" name="voltar" value="{{ Retorno::atual() }}">
+        <input type="hidden" name="{{ Voltar::CAMPO }}" value="{{ $voltar }}">
 
         <div class="alert alert-info">A alteração vale só para esta execução.</div>
 

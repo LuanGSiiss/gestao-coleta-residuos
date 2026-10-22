@@ -1,6 +1,9 @@
 @use('App\Enums\SituacaoExecucao')
-@use('App\Support\Retorno')
+@use('App\Support\Voltar')
 @extends('layouts.app')
+
+@php $voltar = Voltar::url(route('execucoes.show', $execucao)); @endphp
+
 @section('titulo', "Cancelar execução {$execucao->id}")
 @section('subtitulo', $execucao->data->format('d/m/Y') . ', ' . mb_strtolower($execucao->diaSemana()->rotulo()) . " — {$execucao->programacao->descricao}")
 
@@ -35,7 +38,7 @@
             <form method="POST" action="{{ route('execucoes.cancelar', $execucao) }}">
                 @csrf
                 @method('PUT')
-                <input type="hidden" name="voltar" value="{{ Retorno::atual() }}">
+                <input type="hidden" name="{{ Voltar::CAMPO }}" value="{{ $voltar }}">
 
                 <x-form.textarea name="motivo" label="Motivo do cancelamento" required :linhas="3" maxlength="500" autofocus />
 
@@ -45,7 +48,7 @@
 
                 <div class="d-flex flex-wrap gap-2">
                     <button type="submit" class="btn btn-danger">Cancelar execução</button>
-                    <a href="{{ Retorno::destino(route('execucoes.show', $execucao)) }}" class="btn btn-outline-secondary">Voltar</a>
+                    <a href="{{ $voltar }}" class="btn btn-outline-secondary">Voltar</a>
                 </div>
             </form>
         </div>

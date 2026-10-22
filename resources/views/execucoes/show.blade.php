@@ -1,4 +1,4 @@
-@use('App\Support\Retorno')
+@use('App\Support\Voltar')
 @use('App\Enums\SituacaoExecucao')
 @extends('layouts.app')
 @section('titulo', "Execução {$execucao->id}")
@@ -6,13 +6,10 @@
 
 @section('acoes')
     <div class="d-flex flex-wrap gap-2">
-        <a href="{{ Retorno::destino(route('execucoes.index')) }}" class="btn btn-outline-secondary">Voltar</a>
+        <a href="{{ Voltar::url(route('execucoes.index')) }}" class="btn btn-outline-secondary">Voltar</a>
 
         @unless ($execucao->impedimentoParaCancelar())
-            <a href="{{ Retorno::link('execucoes.cancelamento', $execucao) }}" class="btn btn-outline-danger">Cancelar execução</a>
-        @endunless
-        @unless ($execucao->impedimentoParaAlterar())
-            <a href="{{ Retorno::link('execucoes.edit', $execucao) }}" class="btn btn-primary">Editar</a>
+            <a href="{{ route('execucoes.cancelamento', $execucao) }}" class="btn btn-outline-danger">Cancelar execução</a>
         @endunless
     </div>
 @endsection
@@ -37,14 +34,12 @@
             </div>
 
             <x-form.leitura label="Programação">
-                <a href="{{ Retorno::link('programacoes.show', $execucao->programacao) }}">{{ $execucao->programacao->id }} — {{ $execucao->programacao->descricao }}</a>
-                <span class="text-body-secondary">· {{ $execucao->programacao->tipo_coleta->rotulo() }}</span>
+                {{ $execucao->programacao->id }} — {{ $execucao->programacao->descricao }} <span class="text-body-secondary">· {{ $execucao->programacao->tipo_coleta->rotulo() }}</span>
             </x-form.leitura>
 
             <x-form.leitura label="Rota e trajeto">
                 <span class="amostra-cor" style="background-color: {{ $rota->cor }}"></span>
-                <span class="ms-1">{{ $rota->identificacao }} — {{ $rota->nome }}</span> 
-                · <a href="{{ Retorno::link('rotas.versoes', [$rota, $execucao->rotaVersao->numero]) }}">versão {{ $execucao->rotaVersao->numero }}</a>
+                <span class="ms-1">{{ $rota->identificacao }} — {{ $rota->nome }}</span> · versão {{ $execucao->rotaVersao->numero }}
                 <span class="text-body-secondary">({{ $execucao->rotaVersao->extensao_formatada }})</span>
             </x-form.leitura>
         </div>
@@ -143,7 +138,7 @@
         <div class="card-header d-flex justify-content-between align-items-center gap-2">
             <span class="small fw-semibold">Ocorrências</span>
             @unless ($execucao->impedimentoParaOcorrencia())
-                <a href="{{ Retorno::link('execucoes.ocorrencias.create', $execucao) }}" class="btn btn-sm btn-outline-primary">Registrar ocorrência</a>
+                <a href="{{ route('execucoes.ocorrencias.create', $execucao) }}" class="btn btn-sm btn-outline-primary">Registrar ocorrência</a>
             @endunless
         </div>
 

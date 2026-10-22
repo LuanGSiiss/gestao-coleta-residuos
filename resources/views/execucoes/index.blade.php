@@ -1,21 +1,10 @@
-@use('App\Support\Retorno')
 @use('App\Enums\SituacaoExecucao')
 @extends('layouts.app')
 @section('titulo', 'Execuções')
 @section('subtitulo', 'A coleta de cada dia')
 
-@section('acoes')
-    @if (Retorno::atual())
-        <a href="{{ Retorno::atual() }}" class="btn btn-outline-secondary">Voltar</a>
-    @endif
-@endsection
-
 @section('conteudo')
     <form method="GET" action="{{ route('execucoes.index') }}" class="row g-2 align-items-center mb-3">
-        @if (Retorno::atual())
-            <input type="hidden" name="voltar" value="{{ Retorno::atual() }}">
-        @endif
-
         <div class="col-sm-3 col-lg-2">
             <input type="number" name="id" value="{{ request('id') }}" min="1" class="form-control" placeholder="Código" aria-label="Filtrar pelo código">
         </div>
@@ -107,7 +96,7 @@
             </div>
 
             <button type="submit" class="btn btn-outline-secondary">Buscar</button>
-            <a href="{{ Retorno::manter('execucoes.index') }}" class="btn btn-outline-secondary">Limpar</a>
+            <a href="{{ route('execucoes.index', ['de' => '', 'ate' => '']) }}" class="btn btn-outline-secondary">Limpar</a>
 
             <span class="small text-body-secondary ms-sm-auto">{{ $execucoes->total() === 1 ? '1 execução' : "{$execucoes->total()} execuções" }}</span>
         </div>
@@ -124,7 +113,7 @@
                         <th>Programação e trajeto</th>
                         <th>Motorista e veículo</th>
                         <th style="width: 10rem;">Situação</th>
-                        <th style="width: 9rem;" class="text-end">Ações</th>
+                        <th style="width: 15rem;" class="text-end">Ações</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -137,10 +126,10 @@
                             </td>
                             <td class="text-nowrap">{{ $execucao->hora_inicio_prevista }}–{{ $execucao->hora_fim_prevista }}</td>
                             <td>
-                                <a href="{{ Retorno::link('programacoes.show', $execucao->programacao) }}">{{ $execucao->programacao->descricao }}</a>
+                                {{ $execucao->programacao->descricao }}
                                 <div class="small text-nowrap">
                                     <span class="amostra-cor" style="background-color: {{ $execucao->rotaVersao->rota->cor }}"></span>
-                                    <a href="{{ Retorno::link('rotas.versoes', [$execucao->rotaVersao->rota, $execucao->rotaVersao->numero]) }}">{{ $execucao->rotaVersao->rota->identificacao }}, versão {{ $execucao->rotaVersao->numero }}</a>
+                                    {{ $execucao->rotaVersao->rota->identificacao }}, versão {{ $execucao->rotaVersao->numero }}
                                 </div>
                             </td>
                             <td>
@@ -156,9 +145,12 @@
                                 @endif
                             </td>
                             <td class="text-end text-nowrap">
-                                <a href="{{ Retorno::link('execucoes.show', $execucao) }}" class="btn btn-sm btn-outline-secondary">Ver</a>
+                                <a href="{{ route('execucoes.show', $execucao) }}" class="btn btn-sm btn-outline-secondary">Ver</a>
                                 @unless ($execucao->impedimentoParaAlterar())
-                                    <a href="{{ Retorno::link('execucoes.edit', $execucao) }}" class="btn btn-sm btn-outline-secondary">Editar</a>
+                                    <a href="{{ route('execucoes.edit', $execucao) }}" class="btn btn-sm btn-outline-secondary">Editar</a>
+                                @endunless
+                                @unless ($execucao->impedimentoParaCancelar())
+                                    <a href="{{ route('execucoes.cancelamento', $execucao) }}" class="btn btn-sm btn-outline-danger">Cancelar</a>
                                 @endunless
                             </td>
                         </tr>

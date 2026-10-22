@@ -1,5 +1,5 @@
 @use('App\Enums\SituacaoExecucao')
-@use('App\Support\Retorno')
+@use('App\Support\Voltar')
 @extends('layouts.app')
 
 @php
@@ -15,7 +15,7 @@
         <div class="card-body">
             <form method="POST" action="{{ $acao }}">
                 @csrf
-                <input type="hidden" name="voltar" value="{{ Retorno::atual() }}">
+                <input type="hidden" name="{{ Voltar::CAMPO }}" value="{{ $voltar }}">
 
                 <x-form.input name="titulo" label="Título" required maxlength="120" autofocus placeholder="Rua interditada, veículo com defeito…" />
 

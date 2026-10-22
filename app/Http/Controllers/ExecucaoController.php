@@ -6,7 +6,7 @@ use App\Models\Rota;
 use DateTimeImmutable;
 use App\Models\Veiculo;
 use App\Models\Execucao;
-use App\Support\Retorno;
+use App\Support\Voltar;
 use App\Enums\TipoColeta;
 use Illuminate\View\View;
 use App\Models\RotaVersao;
@@ -22,7 +22,7 @@ use App\Http\Requests\CancelamentoRequest;
 
 class ExecucaoController extends Controller
 {
-    private const FILTROS = ['id', 'de', 'ate', 'programacao', 'rota', 'motorista', 'veiculo', 'situacao'];
+    private const FILTROS = ['id', 'de', 'ate', 'programacao', 'rota', 'motorista', 'veiculo', 'situacao', 'tipo', 'ocorrencias'];
 
     public function __construct(private readonly ExecucaoService $servico)
     {
@@ -94,7 +94,7 @@ class ExecucaoController extends Controller
 
         $this->servico->alterar($execucao, $request->dadosDaExecucao(), $request->coletores());
 
-        return redirect()->to(Retorno::destino(route('execucoes.show', $execucao)))->with('sucesso', "Execução {$execucao->id} alterada.");
+        return redirect()->to(Voltar::url(route('execucoes.show', $execucao)))->with('sucesso', "Execução {$execucao->id} alterada.");
     }
 
     public function cancelamento(Execucao $execucao): View|RedirectResponse
@@ -111,7 +111,7 @@ class ExecucaoController extends Controller
 
         $this->servico->cancelar($execucao, $request->validated('motivo'), $request->user());
 
-        return redirect()->to(Retorno::destino(route('execucoes.show', $execucao)))->with('sucesso', "Execução {$execucao->id} cancelada.");
+        return redirect()->to(Voltar::url(route('execucoes.show', $execucao)))->with('sucesso', "Execução {$execucao->id} cancelada.");
     }
 
     /** Retorna a tela de anterior a ação caso possua algum impedimento. */
@@ -121,7 +121,7 @@ class ExecucaoController extends Controller
             return null;
         }
 
-        return redirect()->to(Retorno::destino(route('execucoes.show', $execucao)))->with('erro', $impedimento);
+        return redirect()->to(Voltar::url(route('execucoes.show', $execucao)))->with('erro', $impedimento);
     }
 
     private function dadosFormulario(Execucao $execucao): array

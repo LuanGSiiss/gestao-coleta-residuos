@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Support\Voltar;
 use App\Models\Execucao;
-use App\Support\Retorno;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
 use App\Http\Requests\OcorrenciaRequest;
@@ -16,7 +16,7 @@ class OcorrenciaController extends Controller
             ?? view('ocorrencias.form', [
                 'execucao' => $execucao->load('rotaVersao.rota'),
                 'acao'     => route('execucoes.ocorrencias.store', $execucao),
-                'voltar'   => Retorno::destino(route('execucoes.show', $execucao)),
+                'voltar'   => Voltar::url(route('execucoes.show', $execucao))
             ]);
     }
 
@@ -28,7 +28,7 @@ class OcorrenciaController extends Controller
 
         $execucao->registrarOcorrencia($request->dadosDaOcorrencia(), $request->user());
 
-        return redirect()->to(Retorno::destino(route('execucoes.show', $execucao)))->with('sucesso', 'Ocorrência registrada.');
+        return redirect()->to(Voltar::url(route('execucoes.show', $execucao)))->with('sucesso', 'Ocorrência registrada.');
     }
 
     /** Retorna a tela de anterior a ação caso possua algum impedimento. */
@@ -36,6 +36,6 @@ class OcorrenciaController extends Controller
     {
         $impedimento = $execucao->impedimentoParaOcorrencia();
 
-        return $impedimento === null ? null : redirect()->to(Retorno::destino(route('execucoes.show', $execucao)))->with('erro', $impedimento);
+        return $impedimento === null ? null : redirect()->to(Voltar::url(route('execucoes.show', $execucao)))->with('erro', $impedimento);
     }
 }
