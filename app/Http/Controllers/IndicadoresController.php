@@ -7,7 +7,6 @@ use Closure;
 use App\Models\Rota;
 use App\Support\Duracao;
 use App\Support\Periodo;
-use App\Support\Retorno;
 use App\Enums\TipoColeta;
 use Illuminate\View\View;
 use App\Support\Indicadores;
@@ -33,13 +32,6 @@ class IndicadoresController extends Controller
         $porRota = $indicadores->porRota();
         $porVersao = $indicadores->porVersao();
 
-        $consulta = fn (array $recorte) => Retorno::link('execucoes.index', [
-            ...$periodo->parametros(),
-            ...$filtros,
-            'situacao' => SituacaoExecucao::CONCLUIDA->value,
-            ...$recorte,
-        ]);
-
         return view('indicadores.index', [
             'periodo'    => $periodo,
             'atalhos'    => Periodo::atalhos(),
@@ -47,7 +39,6 @@ class IndicadoresController extends Controller
             'rotas'      => Rota::orderBy('identificacao')->get(),
             'tipos'      => TipoColeta::opcoes(),
             'alteracoes' => $indicadores->alteracoesDeTrajeto(),
-
             'coletas'    => (int) $resumo->coletas,
             'resumo'     => [
                 'Coletas concluídas'       => number_format((int) $resumo->coletas, 0, ',', '.'),
@@ -57,16 +48,16 @@ class IndicadoresController extends Controller
             ],
 
             // Os quatro gráficos.
-            'evolucao'   => self::evolucao($indicadores->porSemana(), $periodo, $consulta),
+            'evolucao'   => self::evolucao($indicadores->porSemana(), $periodo),
             'quantidade' => [
-                ...self::rotas($porRota, $consulta),
+                ...self::rotas($porRota),
                 'unidade' => 't',
                 'series'  => [
                     self::serie('Quantidade coletada', 'registrada', $porRota->map(fn ($linha) => $linha->quantidade_kg / 1000), fn ($t) => self::toneladas($t)),
                 ],
             ],
             'tempo'      => [
-                ...self::rotas($porRota, $consulta),
+                ...self::rotas($porRota),
                 'unidade' => 'min',
                 'series'  => [
                     self::serie('Previsto', 'prevista', $porRota->pluck('minutos_previstos'), fn ($m) => self::duracao($m)),
@@ -74,7 +65,7 @@ class IndicadoresController extends Controller
                 ],
             ],
             'distancia'  => [
-                ...self::rotas($porVersao, $consulta, comVersao: true),
+                ...self::rotas($porVersao, comVersao: true),
                 'unidade' => 'km',
                 'series'  => [
                     self::serie('Extensão do trajeto', 'prevista', $porVersao->map(fn ($linha) => $linha->extensao_metros / 1000), fn ($km) => self::quilometros($km)),
@@ -87,7 +78,7 @@ class IndicadoresController extends Controller
     /**
      * Retorna os valores para o gráfico de barras utilizando as rotas, uma por linha do resultado.
      */
-    private static function rotas(Collection $linhas, Closure $consulta, bool $comVersao = false): array
+    private static function rotas(Collection $linhas, bool $comVersao = false): array
     {
         return [
             'tipo'     => 'barras',
@@ -95,14 +86,13 @@ class IndicadoresController extends Controller
             'rotulos'  => $linhas->map(fn ($linha) => "{$linha->identificacao} — {$linha->nome}")->values()->all(),
             'curtos'   => $linhas->map(fn ($linha) => $comVersao ? "{$linha->identificacao} v{$linha->numero}" : $linha->identificacao)->values()->all(),
             'detalhes' => $linhas->map(fn ($linha) => ($comVersao ? "versão {$linha->numero} · " : '') . self::coletas((int) $linha->coletas))->values()->all(),
-            'links'    => $linhas->map(fn ($linha) => $consulta(['rota' => (int) $linha->rota_id]))->values()->all(),
         ];
     }
 
     /**
      * Retorna os valores para o gráfico de evolução, apresentando a média por dia de cada semana do período, uma linha para cada tipo de coleta que aparece no resultado.
      */
-    private static function evolucao(Collection $porSemana, Periodo $periodo, Closure $consulta): array
+    private static function evolucao(Collection $porSemana, Periodo $periodo): array
     {
         $semanas = $periodo->semanas();
         $series = [];
@@ -112,7 +102,6 @@ class IndicadoresController extends Controller
             $quilos = $linhas->pluck('quantidade_kg', 'semana');
             $porDia = [];
             $textos = [];
-            $links = [];
 
             foreach ($semanas as $semana) {
                 $toneladas = $quilos->get($semana['segunda']->toDateString(), 0) / 1000;
@@ -120,17 +109,11 @@ class IndicadoresController extends Controller
                 $textos[] = $semana['dias'] === 1
                     ? self::toneladas($toneladas) . ' no dia'
                     : self::toneladas($toneladas / $semana['dias']) . ' por dia (' . self::toneladas($toneladas) . " em {$semana['dias']} dias)";
-                $links[] = $consulta([
-                    'de'   => $semana['inicio']->toDateString(),
-                    'ate'  => $semana['fim']->toDateString(),
-                    'tipo' => $tipo->value,
-                ]);
             }
 
             $series[] = [
                 ...self::serie($tipo->rotulo(), mb_strtolower($tipo->name), collect($porDia), fn ($t) => self::toneladas($t)),
-                'textos' => $textos,
-                'links'  => $links,
+                'textos' => $textos
             ];
         }
 

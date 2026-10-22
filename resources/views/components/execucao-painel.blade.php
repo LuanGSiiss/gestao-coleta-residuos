@@ -1,6 +1,5 @@
 @props(['execucao'])
 @use('App\Enums\SituacaoExecucao')
-@use('App\Support\Retorno')
 
 @php
     $rota = $execucao->rotaVersao->rota;
@@ -9,11 +8,10 @@
 @endphp
 
 {{-- Componente de um execução no painel. Representando uma execução apresentada no painel. --}}
-<a href="{{ Retorno::link('execucoes.show', $execucao) }}"
+<a href="{{ route('execucoes.show', $execucao) }}"
    @class([
        'list-group-item list-group-item-action',
-       'execucao-painel-atrasada' => $atrasada,
-       'execucao-painel-ocorrencia' => $ocorrencias > 0,
+       'execucao-painel-ocorrencia' => $ocorrencias > 0
    ])>
     <div class="d-flex flex-wrap justify-content-between align-items-center gap-1">
         <span class="fw-semibold">{{ $execucao->hora_inicio_prevista }}–{{ $execucao->hora_fim_prevista }}</span>

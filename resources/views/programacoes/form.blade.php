@@ -113,7 +113,7 @@
 
                     <p class="small text-body-secondary">
                         Tipo, rota, período e dias não mudam depois do cadastro. Para estender o período, use
-                        <a href="{{ Retorno::link('programacoes.prorrogacao', $programacao) }}">Prorrogar</a>
+                        <a href="{{ route('programacoes.prorrogacao', $programacao) }}">Prorrogar</a>
                         para mudar os demais, encerre esta programação e cadastre outra.
                     </p>
                 @else

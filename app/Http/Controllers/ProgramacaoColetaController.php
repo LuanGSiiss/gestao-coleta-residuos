@@ -3,12 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Rota;
-use App\Support\Retorno;
+use App\Support\Voltar;
 use App\Enums\DiaSemana;
 use Illuminate\View\View;
 use App\Enums\TipoColeta;
 use App\Support\Cronograma;
-use App\Support\Habilitacao;
 use Illuminate\Http\Request;
 use App\Support\OpcoesAlocacao;
 use App\Models\ProgramacaoColeta;
@@ -17,7 +16,6 @@ use Illuminate\Http\RedirectResponse;
 use App\Http\Requests\ProrrogacaoRequest;
 use App\Services\ProgramacaoColetaService;
 use App\Http\Requests\ProgramacaoColetaRequest;
-use App\Support\Voltar;
 
 class ProgramacaoColetaController extends Controller
 {
@@ -65,11 +63,10 @@ class ProgramacaoColetaController extends Controller
         );
 
         return redirect()
-            ->to(Retorno::manter('programacoes.show', $programacao))
+            ->route('programacoes.show', $programacao)
             ->with('sucesso', "Programação {$programacao->id} cadastrada: "
                 . self::quantidade($geradas, 'execução gerada', 'execuções geradas')
-                . " no período de {$programacao->periodo}.")
-            ->with('aviso', Habilitacao::aviso($programacao->motorista, $programacao->data_fim));
+                . " no período de {$programacao->periodo}.");
     }
 
     public function show(ProgramacaoColeta $programacao): View

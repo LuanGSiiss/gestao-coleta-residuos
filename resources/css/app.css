@@ -116,13 +116,6 @@
     border: 1px solid var(--bs-border-color);
     border-left: 0.3rem solid var(--cor-situacao, var(--bs-border-color));
     border-radius: var(--bs-border-radius);
-    color: inherit;
-    text-decoration: none;
-}
-
-.total-situacao:hover,
-.total-situacao:focus-visible {
-    background-color: var(--bs-tertiary-bg);
 }
 
 .total-situacao strong {
@@ -130,6 +123,10 @@
     font-size: 1.5rem;
     line-height: 1.2;
 }
+
+/* .total-situacao:focus-visible {
+    background-color: var(--bs-tertiary-bg);
+} */
 
 /* Mapa ajustado para a tela do motoristo. Dessa forma, cabe no celular junto com as ações */
 .mapa-coleta {
@@ -143,18 +140,7 @@
     border-top: 0.25rem solid var(--cor-situacao, var(--bs-border-color));
 }
 
-/* O destaque de cada execução do painel. */
-.execucao-painel-atrasada {
-    --cor-destaque: var(--bs-warning);
-}
-.execucao-painel-ocorrencia {
-    --cor-destaque: var(--bs-danger);
-}
-.execucao-painel-atrasada.execucao-painel-ocorrencia {
-    --cor-destaque: linear-gradient(var(--bs-warning) 50%, var(--bs-danger) 50%);
-}
-
-.execucao-painel-atrasada::before,
+/* A execução do painel com ocorrência registrada tem uma faixa vermelha à esquerda. */
 .execucao-painel-ocorrencia::before {
     content: "";
     position: absolute;
@@ -162,10 +148,10 @@
     bottom: 0;
     left: 0;
     width: 0.3rem;
-    background: var(--cor-destaque);
+    background: var(--bs-danger);
 }
 
-/* Corta textos longos no fim da segunda linha, com reticências. */
+/* Texto longo cortado no fim da segunda linha, com reticências */
 .limite-2-linhas {
     display: -webkit-box;
     -webkit-box-orient: vertical;
@@ -173,6 +159,7 @@
     overflow: hidden;
 }
 
+/* Indicadores */
 .indicador-resumo {
     height: 100%;
     padding: 0.5rem 0.75rem;
@@ -187,7 +174,6 @@
     line-height: 1.2;
 }
 
-/* Definição de váriaveis para as cores utilizadas. */
 :root {
     --grafico-registrada: #3a6aa8;
     --grafico-prevista: #8f8d85;
@@ -201,8 +187,4 @@
 
 .grafico canvas {
     max-width: 100%;
-}
-
-.tabela-numeros td {
-    font-variant-numeric: tabular-nums;
 }

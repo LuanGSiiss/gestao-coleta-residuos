@@ -2,9 +2,7 @@
 
 namespace App\Http\Requests\Concerns;
 
-use App\Models\Veiculo;
 use App\Models\Funcionario;
-use App\Support\Habilitacao;
 use App\Enums\TipoFuncionario;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;

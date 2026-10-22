@@ -22,7 +22,7 @@
                     @foreach ($versoes as $versao)
                         @php $atual = $versao->is($selecionada); @endphp
 
-                        <a href="{{ Retorno::manter('rotas.versoes', [$rota, $versao->numero]) }}" 
+                        <a href="{{ route('rotas.versoes', [$rota, $versao->numero]) }}" 
                            class="list-group-item list-group-item-action {{ $atual ? 'active' : '' }}"
                            @if ($atual) aria-current="true" @endif>
                             <div class="d-flex justify-content-between align-items-center">

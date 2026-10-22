@@ -24,8 +24,6 @@ class PainelController extends Controller
             ->get();
 
         return view('painel', [
-            'hoje'          => $hoje,
-            'ontem'         => today()->subDay()->toDateString(),
             'total'         => $execucoes->count(),
             'grupos'        => $execucoes->groupBy(fn (Execucao $execucao) => $execucao->situacao->value),
             'atrasadas'     => $execucoes->filter(fn (Execucao $execucao) => $execucao->atrasada())->count(),
