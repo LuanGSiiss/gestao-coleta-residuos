@@ -11,7 +11,7 @@ final class MapaRotas
      * Trajeto vigente de cada rota, como uma única coleção GeoJSON.
      * @param Collection<int, Rota> $rotas coleção de modelos de rotas com os trechos já carregados.
      */
-    public static function colecao(Collection $rotas, bool $comLink = true): array
+    public static function colecao(Collection $rotas): array
     {
         $features = [];
 
@@ -23,13 +23,8 @@ final class MapaRotas
             $propriedades = [
                 'identificacao' => $rota->identificacao,
                 'nome'          => $rota->nome,
-                'cor'           => $rota->cor,
-                'extensao'      => $rota->versaoAtual->extensao_formatada
+                'cor'           => $rota->cor
             ];
-
-            if ($comLink) {
-                $propriedades['url'] = Retorno::link('rotas.show', $rota);
-            }
 
             array_push(
                 $features,

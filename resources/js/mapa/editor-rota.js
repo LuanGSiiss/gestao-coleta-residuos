@@ -10,6 +10,7 @@ import {
     formatarKm,
     rotuloRota,
 } from './base';
+import { partesFora } from './recorte';
 
 /*
  * Textos próprios por cima da tradução pt_br do Geoman: "trecho" é a linguagem do
@@ -20,8 +21,8 @@ import {
 const TEXTOS = {
     buttonTitles: {
         drawLineButton: 'Desenhar trecho',
+        drawPolyButton: 'Recortar trechos',
         editButton: 'Editar trechos',
-        cutButton: 'Recortar trecho',
         deleteButton: 'Remover trecho',
     },
 };
@@ -30,7 +31,7 @@ const DICAS = {
     padrao: 'Use as ferramentas à esquerda do mapa para desenhar, editar, recortar ou remover trechos.',
     desenho: 'Clique para marcar cada vértice e clique no último para concluir. O próximo trecho começa em seguida. Esc encerra o desenho.',
     edicao: 'Arraste os vértices para ajustar e os pontos intermediários para criar vértices. Botão direito remove um vértice. Segure Alt para desativar o alinhamento.',
-    recorte: 'Desenhe um polígono sobre a parte do trecho que deve ser retirada.',
+    recorte: 'Desenhe um polígono em volta do que deve sair e clique no primeiro vértice para fechá-lo. Os trechos dentro dele saem; os que cruzam a borda perdem a parte de dentro.',
     remocao: 'Clique sobre um trecho para removê-lo.',
 };
 
@@ -97,6 +98,57 @@ export function iniciarEditorRota(elemento, dados) {
         grupo.addLayer(camada);
     }
 
+    /**
+     * Os trechos da rota: as linhas do grupo com ao menos dois pontos. O que não for isso sai
+     * do grupo aqui — por exemplo, a linha que perdeu todos os vértices na edição, que o Geoman
+     * tira do mapa, mas não do grupo.
+     */
+    function trechos() {
+        const validos = [];
+
+        grupo.getLayers().forEach((camada) => {
+            const linha = camada instanceof L.Polyline && !(camada instanceof L.Polygon);
+
+            if (linha && contarPontos(camada.getLatLngs()) >= 2) {
+                validos.push(camada);
+            } else {
+                grupo.removeLayer(camada);
+            }
+        });
+
+        return validos;
+    }
+
+    /**
+     * Recorte: o polígono desenhado marca o que sai. Cada trecho perde o que fica dentro
+     * dele: o trecho inteiro, ou só a parte de dentro, e o que sobra de cada lado vira um
+     * trecho próprio. O polígono só marca a área: não faz parte da rota e sai do mapa.
+     */
+    function recortar(poligono) {
+        grupo.removeLayer(poligono);
+        poligono.remove();
+
+        // O contorno: o Leaflet guarda o polígono como uma lista de anéis, e o desenhado tem um só.
+        const borda = poligono.getLatLngs()[0];
+
+        trechos().forEach((camada) => {
+            const pontos = camada.getLatLngs();
+            const partes = partesFora(pontos, borda);
+
+            // Fora do polígono, sem cruzar a borda: o trecho fica como está.
+            if (partes.length === 1 && partes[0] === pontos) {
+                return;
+            }
+
+            grupo.removeLayer(camada);
+            camada.remove();
+            partes.forEach((parte) => registrar(L.polyline(parte)));
+            alterado = true;
+        });
+
+        atualizarResumo();
+    }
+
     function configurarGeoman() {
         mapa.pm.setLang('trechos', TEXTOS, 'pt_br');
 
@@ -104,13 +156,13 @@ export function iniciarEditorRota(elemento, dados) {
             position: 'topleft',
             drawPolyline: true,
             editMode: true,
-            cutPolygon: true,
+            cutPolygon: false,
             removalMode: true,
             drawMarker: false,
             drawCircleMarker: false,
             drawCircle: false,
             drawRectangle: false,
-            drawPolygon: false,
+            drawPolygon: true,
             drawText: false,
             rotateMode: false,
             dragMode: false,
@@ -121,13 +173,18 @@ export function iniciarEditorRota(elemento, dados) {
             snapDistance: 10,
             continueDrawing: true,
             layerGroup: grupo,
-            removeLayerBelowMinVertexCount: false,
+            removeLayerBelowMinVertexCount: true,
             pathOptions: estiloTrecho(cor),
             templineStyle: { color: cor },
             hintlineStyle: { color: cor, dashArray: [5, 5] },
         });
 
-        mapa.on('pm:create', ({ layer }) => {
+        mapa.on('pm:create', ({ shape, layer }) => {
+            if (shape === 'Polygon') {
+                recortar(layer);
+                return;
+            }
+
             registrar(layer);
             alterado = true;
             atualizarResumo();
@@ -139,31 +196,19 @@ export function iniciarEditorRota(elemento, dados) {
             atualizarResumo();
         });
 
-        // O recorte substitui o trecho original por um novo, que pode ter várias partes.
-        mapa.on('pm:cut', ({ originalLayer, layer }) => {
-            grupo.removeLayer(originalLayer);
-            registrar(layer);
-            alterado = true;
-            atualizarResumo();
-        });
-
         mapa.on(
-            'pm:globaldrawmodetoggled pm:globaleditmodetoggled pm:globalcutmodetoggled pm:globalremovalmodetoggled',
+            'pm:globaldrawmodetoggled pm:globaleditmodetoggled pm:globalremovalmodetoggled',
             atualizarDica,
         );
     }
 
     function modoAtual() {
         if (mapa.pm.globalDrawModeEnabled()) {
-            return mapa.pm.Draw.getActiveShape() === 'Cut' ? 'recorte' : 'desenho';
+            return mapa.pm.Draw.getActiveShape() === 'Polygon' ? 'recorte' : 'desenho';
         }
 
         if (mapa.pm.globalEditModeEnabled()) {
             return 'edicao';
-        }
-
-        if (mapa.pm.globalCutModeEnabled()) {
-            return 'recorte';
         }
 
         if (mapa.pm.globalRemovalModeEnabled()) {
@@ -183,7 +228,7 @@ export function iniciarEditorRota(elemento, dados) {
         let metros = 0;
         let partes = 0;
 
-        grupo.eachLayer((camada) => {
+        trechos().forEach((camada) => {
             metros += comprimentoMetros(camada.getLatLngs());
             partes += contarPartes(camada.getLatLngs());
         });
@@ -195,7 +240,6 @@ export function iniciarEditorRota(elemento, dados) {
     function encerrarFerramentas() {
         mapa.pm.disableDraw();
         mapa.pm.disableGlobalEditMode();
-        mapa.pm.disableGlobalCutMode();
         mapa.pm.disableGlobalRemovalMode();
     }
 

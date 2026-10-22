@@ -1,4 +1,3 @@
-@use('App\Support\Retorno')
 @extends('layouts.app')
 @section('titulo', 'Mapa das rotas')
 @section('subtitulo', 'Trajeto vigente de cada rota')
@@ -47,11 +46,12 @@
                 <div class="card-header small fw-semibold">Legenda</div>
                 <ul class="list-group list-group-flush small">
                     @forelse ($rotas as $rota)
-                        <li class="list-group-item d-flex align-items-center gap-2">
-                            <span class="amostra-cor" style="background-color: {{ $rota->cor }}"></span>
-                            <a href="{{ Retorno::link('rotas.show', $rota) }}" class="text-decoration-none">
-                                <strong>{{ $rota->identificacao }}</strong> {{ $rota->nome }}
-                            </a>
+                        <li class="list-group-item d-flex align-items-start gap-2">
+                            <span class="amostra-cor flex-shrink-0 mt-1" style="background-color: {{ $rota->cor }}"></span>
+                            <div>
+                                <a href="{{ route('rotas.show', $rota) }}" class="text-decoration-none"><strong>{{ $rota->identificacao }}</strong> {{ $rota->nome }}</a>
+                                <div class="text-body-secondary">{{ $rota->versaoAtual?->extensao_formatada ?? 'Sem trajeto' }}</div>
+                            </div>
                         </li>
                     @empty
                         <li class="list-group-item text-secondary">Nenhuma rota com estes filtros.</li>

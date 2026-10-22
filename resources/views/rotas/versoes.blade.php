@@ -1,4 +1,4 @@
-@use('App\Support\Retorno')
+@use('App\Support\Voltar')
 @extends('layouts.app')
 @section('titulo', "Versões da rota {$rota->identificacao}")
 @section('subtitulo', $rota->nome)
@@ -9,9 +9,8 @@
 
 @section('acoes')
     <div class="d-flex gap-2">
-        <a href="{{ Retorno::destino(route('rotas.show', $rota)) }}" class="btn btn-outline-secondary">Voltar</a>
-        <a href="{{ Retorno::link('rotas.show', $rota) }}" class="btn btn-outline-secondary">Ver rota</a>
-        <a href="{{ Retorno::link('rotas.edit', $rota) }}" class="btn btn-primary">Editar rota</a>
+        <a href="{{ Voltar::url(route('rotas.show', $rota)) }}" class="btn btn-outline-secondary">Voltar</a>
+        <a href="{{ route('rotas.show', $rota) }}" class="btn btn-outline-secondary">Ver rota</a>
     </div>
 @endsection
 

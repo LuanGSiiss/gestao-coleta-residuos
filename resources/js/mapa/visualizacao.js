@@ -1,6 +1,6 @@
 import L from 'leaflet';
 
-import { conteudoPopup, criarMapa, enquadrar, rotuloRota } from './base';
+import { criarMapa, enquadrar, rotuloRota } from './base';
 
 /**
  * Mapa somente de leitura, utilizado para a versões do trajeto e mapa geral das rotas.
@@ -21,10 +21,6 @@ export function iniciarVisualizacao(elemento, dados) {
             }),
             onEachFeature: (feature, camada) => {
                 camada.bindTooltip(rotuloRota(feature.properties), { sticky: true });
-
-                if (feature.properties.url) {
-                    camada.bindPopup(conteudoPopup(feature.properties));
-                }
             },
         }).addTo(todas);
     }

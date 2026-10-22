@@ -1,7 +1,10 @@
-@use('App\Support\Retorno')
+@use('App\Support\Voltar')
 @extends('layouts.app')
 
-@php $editando = $rota->exists; @endphp
+@php 
+    $editando = $rota->exists;
+    $voltar = Voltar::url($editando ? route('rotas.show', $rota) : route('rotas.index'));
+@endphp
 
 @section('titulo', $editando ? "Editar rota {$rota->identificacao}" : 'Nova rota')
 
@@ -11,10 +14,7 @@
 
 @section('acoes')
     <div class="d-flex gap-2">
-        @if ($editando)
-            <a href="{{ Retorno::link('rotas.versoes', $rota) }}" class="btn btn-outline-secondary">Versões</a>
-        @endif
-        <a href="{{ Retorno::destino($editando ? route('rotas.show', $rota) : route('rotas.index')) }}" class="btn btn-outline-secondary">Cancelar</a>
+        <a href="{{ $voltar }}" class="btn btn-outline-secondary">Cancelar</a>
         <button type="submit" form="form-rota" class="btn btn-primary">{{ $editando ? 'Salvar alterações' : 'Cadastrar' }}</button>
     </div>
 @endsection
@@ -25,11 +25,15 @@
         @if ($editando) 
             @method('PUT') 
         @endif
-        <input type="hidden" name="voltar" value="{{ Retorno::atual() }}">
+        <input type="hidden" name="{{ Voltar::CAMPO }}" value="{{ $voltar }}">
 
         <div class="card mb-3">
             <div class="card-body">
-                <x-form.codigo :valor="$rota->id" />
+                <div class="row">
+                    <div class="col-sm-4 col-md-3">
+                        <x-form.leitura label="Código" :valor="$rota->id" vazio="0000" />
+                    </div>
+                </div>
 
                 <div class="row">
                     <div class="col-md-3">
@@ -136,17 +140,23 @@
                         <dd class="col-sm-9">Desliga o alinhamento automático enquanto desenha ou arrasta.</dd>
 
                         <dt class="col-sm-3">Editar trechos</dt>
-                        <dd class="col-sm-9">Arraste os vértices. arraste os pontos intermediários para criar vértices. O botão direito sobre um vértice o remove.</dd>
+                        <dd class="col-sm-9">
+                            Arraste os vértices; arraste os pontos intermediários para criar vértices.
+                            O botão direito sobre um vértice o remove; num trecho de dois vértices, remove o trecho.
+                        </dd>
 
-                        <dt class="col-sm-3">Recortar trecho</dt>
-                        <dd class="col-sm-9">Desenhe um polígono sobre a parte do trecho a retirar.</dd>
+                        <dt class="col-sm-3">Recortar trechos</dt>
+                        <dd class="col-sm-9">
+                            Desenhe um polígono em volta do que deve sair e clique no primeiro vértice
+                            para fechá-lo. Os trechos inteiros dentro dele são removidos; os que cruzam a borda perdem só a parte de dentro.
+                        </dd>
 
                         <dt class="col-sm-3">Remover trecho</dt>
                         <dd class="col-sm-9">Clique sobre o trecho.</dd>
 
                         <dt class="col-sm-3">Linhas cinza tracejadas</dt>
                         <dd class="col-sm-9 mb-0">
-                            Outras rotas para referência. Não podem ser alteradas aqui, mas os vértices novos se alinham a elas.
+                            Outras rotas, só para referência. Não podem ser alteradas aqui, mas os vértices novos se alinham a elas.
                         </dd>
                     </dl>
                 </div>

@@ -1,4 +1,3 @@
-@use('App\Support\Retorno')
 @extends('layouts.app')
 @section('titulo', 'Rotas')
 @section('subtitulo', 'Trajetos de coleta e seus bairros de abrangência')
@@ -6,7 +5,7 @@
 @section('acoes')
     <div class="d-flex gap-2">
         <a href="{{ route('rotas.mapa') }}" class="btn btn-outline-secondary">Mapa das rotas</a>
-        <a href="{{ Retorno::link('rotas.create') }}" class="btn btn-primary">Nova rota</a>
+        <a href="{{ route('rotas.create') }}" class="btn btn-primary">Nova rota</a>
     </div>
 @endsection
 
@@ -41,7 +40,7 @@
                             <td class="text-secondary">{{ $rota->id }}</td>
                             <td class="text-nowrap">
                                 <span class="amostra-cor" style="background-color: {{ $rota->cor }}"></span>
-                                <a href="{{ Retorno::link('rotas.show', $rota) }}" class="fw-semibold ms-1">{{ $rota->identificacao }}</a>
+                                <span class="fw-semibold ms-1">{{ $rota->identificacao }}</span>
                             </td>
                             <td>{{ $rota->nome }}</td>
                             <td class="text-secondary">{{ $rota->bairros_count }}</td>
@@ -51,9 +50,9 @@
                                 <span class="badge text-bg-{{ $rota->ativo ? 'success' : 'secondary' }}">{{ $rota->ativo ? 'Ativa' : 'Inativa' }}</span>
                             </td>
                             <td class="text-end text-nowrap">
-                                <a href="{{ Retorno::link('rotas.show', $rota) }}" class="btn btn-sm btn-outline-secondary">Ver</a>
-                                <a href="{{ Retorno::link('rotas.edit', $rota) }}" class="btn btn-sm btn-outline-secondary">Editar</a>
-                                <a href="{{ Retorno::link('rotas.versoes', $rota) }}" class="btn btn-sm btn-outline-secondary">Versões</a>
+                                <a href="{{ route('rotas.show', $rota) }}" class="btn btn-sm btn-outline-secondary">Ver</a>
+                                <a href="{{ route('rotas.edit', $rota) }}" class="btn btn-sm btn-outline-secondary">Editar</a>
+                                <a href="{{ route('rotas.versoes', $rota) }}" class="btn btn-sm btn-outline-secondary">Versões</a>
                             </td>
                         </tr>
                     @empty

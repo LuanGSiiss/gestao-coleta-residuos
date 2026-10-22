@@ -4,8 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Rota;
 use App\Models\Bairro;
+use App\Support\Voltar;
 use App\Support\Trajeto;
-use App\Support\Retorno;
 use App\Support\MapaRotas;
 use Illuminate\View\View;
 use Illuminate\Http\Request;
@@ -81,7 +81,7 @@ class RotaController extends Controller
             ? "Rota {$rota->identificacao} salva. Versão {$rota->versaoAtual->numero} do trajeto registrada."
             : "Rota {$rota->identificacao} salva. O trajeto não mudou, então nenhuma versão nova foi criada.";
 
-        return redirect()->to(Retorno::destino(route('rotas.show', $rota)))->with('sucesso', $mensagem);
+        return redirect()->to(Voltar::url(route('rotas.show', $rota)))->with('sucesso', $mensagem);
     }
 
     public function show(Rota $rota): View
@@ -125,7 +125,7 @@ class RotaController extends Controller
 
         return [
             'rota'         => $rota,
-            'cor'          => $rota->cor ?? Rota::sugerirCor(),
+            'cor'          => $rota->cor ?? Rota::COR_PADRAO,
             'bairros'      => Bairro::query()
                 ->where(fn ($q) => $q
                     ->where('ativo', true)

@@ -84,24 +84,3 @@ export function rotuloRota(propriedades) {
     
     return elemento;
 }
-
-export function conteudoPopup(propriedades) {
-    const caixa = document.createElement('div');
-
-    const titulo = document.createElement('strong');
-    titulo.textContent = `${propriedades.identificacao} · ${propriedades.nome}`;
-
-    const extensao = document.createElement('div');
-    extensao.textContent = `Extensão: ${propriedades.extensao}`;
-
-    caixa.append(titulo, extensao);
-
-    if (propriedades.url) {
-        const link = document.createElement('a');
-        link.href = propriedades.url;
-        link.textContent = 'Abrir rota';
-        caixa.append(link);
-    }
-
-    return caixa;
-}

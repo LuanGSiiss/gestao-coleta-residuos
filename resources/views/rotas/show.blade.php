@@ -1,4 +1,4 @@
-@use('App\Support\Retorno')
+@use('App\Support\Voltar')
 @extends('layouts.app')
 @section('titulo', "Rota {$rota->identificacao}")
 @section('subtitulo', $rota->nome)
@@ -9,9 +9,9 @@
 
 @section('acoes')
     <div class="d-flex gap-2">
-        <a href="{{ Retorno::destino(route('rotas.index')) }}" class="btn btn-outline-secondary">Voltar</a>
-        <a href="{{ Retorno::link('rotas.versoes', $rota) }}" class="btn btn-outline-secondary">Versões</a>
-        <a href="{{ Retorno::link('rotas.edit', $rota) }}" class="btn btn-primary">Editar</a>
+        <a href="{{ Voltar::url(route('rotas.index')) }}" class="btn btn-outline-secondary">Voltar</a>
+        <a href="{{ route('rotas.index') }}" class="btn btn-outline-secondary">Lista de rotas</a>
+        <a href="{{ route('rotas.versoes', $rota) }}" class="btn btn-primary">Versões</a>
     </div>
 @endsection
 
@@ -62,9 +62,7 @@
                     @if ($versao)
                         <dl class="dados mb-0">
                             <dt>Versão</dt>
-                            <dd>
-                                {{ $versao->numero }} de {{ $totalVersoes }} · <a href="{{ Retorno::link('rotas.versoes', $rota) }}">ver todas</a>
-                            </dd>
+                            <dd>{{ $versao->numero }} de {{ $totalVersoes }}</dd>
 
                             <dt>Extensão aproximada</dt>
                             <dd>{{ $versao->extensao_formatada }} em {{ $versao->trechos->count() }} trecho(s)</dd>
