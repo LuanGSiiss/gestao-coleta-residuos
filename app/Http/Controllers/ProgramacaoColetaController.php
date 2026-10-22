@@ -142,7 +142,7 @@ class ProgramacaoColetaController extends Controller
         $canceladas = $this->servico->encerrar($programacao, $request->user());
 
         return redirect()
-            ->to('programacoes.show', $programacao)
+            ->route('programacoes.show', $programacao)
             ->with('sucesso', "Programação {$programacao->id} encerrada. " . ($canceladas === 0
                 ? 'Nenhuma execução futura precisou ser cancelada.'
                 : self::quantidade($canceladas, 'execução futura cancelada.', 'execuções futuras canceladas.')));

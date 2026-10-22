@@ -24,6 +24,22 @@ export function formatarEixo(valor, unidade) {
     return unidade === 'min' ? `${numero.format(valor / 60)} h` : `${numero.format(valor)} ${unidade}`;
 }
 
+/**
+ * O eixo dos valores, comum aos dois tipos, começando do zero, para o tamanho da barra e a
+ * altura do ponto serem proporcionais ao valor, e com a unidade em cada marca.
+ */
+function eixoDosValores(dados, aparencia) {
+    return {
+        beginAtZero: true,
+        border: { display: false },
+        grid: { color: aparencia.grade },
+        ticks: {
+            ...(dados.unidade === 'min' ? { stepSize: 60 } : { maxTicksLimit: 6 }),
+            callback: (valor) => formatarEixo(valor, dados.unidade),
+        },
+    };
+}
+
 /** A legenda só aparece com duas séries; com uma, o título do gráfico já diz o que é. */
 function legenda(dados, deLinha) {
     return {
