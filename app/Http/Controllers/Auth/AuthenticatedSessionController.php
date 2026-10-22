@@ -24,6 +24,10 @@ class AuthenticatedSessionController extends Controller
      */
     public function store(LoginRequest $request): RedirectResponse
     {
+        if (Auth::check()) {
+            $this->encerrarSessao($request);
+        }
+
         $request->authenticate();
 
         $request->session()->regenerate();
@@ -36,12 +40,17 @@ class AuthenticatedSessionController extends Controller
      */
     public function destroy(Request $request): RedirectResponse
     {
+        $this->encerrarSessao($request);
+
+        return redirect()->route('login');
+    }
+
+    /** Encerra a sessão. */
+    private function encerrarSessao(Request $request): void
+    {
         Auth::guard('web')->logout();
 
         $request->session()->invalidate();
-
         $request->session()->regenerateToken();
-
-        return redirect()->route('login');
     }
 }
