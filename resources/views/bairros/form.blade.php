@@ -14,7 +14,11 @@
                     @method('PUT') 
                 @endif
 
-                <x-form.codigo :valor="$bairro->id" />
+                <div class="row">
+                    <div class="col-sm-5">
+                        <x-form.leitura label="Código" :valor="$bairro->id" vazio="0000" />
+                    </div>
+                </div>
                 <x-form.input name="nome" label="Nome" :value="$bairro->nome" required maxlength="120" autofocus />
 
                 <x-form.checkbox name="ativo" label="Bairro ativo" :checked="$bairro->exists ? $bairro->ativo : true" />

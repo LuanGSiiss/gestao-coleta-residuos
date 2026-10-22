@@ -14,7 +14,11 @@
                     @method('PUT') 
                 @endif
 
-                <x-form.codigo :valor="$marca->id" />
+                <div class="row">
+                    <div class="col-sm-5">
+                        <x-form.leitura label="Código" :valor="$marca->id" vazio="0000" />
+                    </div>
+                </div>
                 <x-form.input name="nome" label="Nome" :value="$marca->nome" required maxlength="60" autofocus />
 
                 <x-form.checkbox name="ativo" label="Marca ativa" :checked="$marca->exists ? $marca->ativo : true" />

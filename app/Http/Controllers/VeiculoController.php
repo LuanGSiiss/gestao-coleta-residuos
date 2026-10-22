@@ -21,8 +21,8 @@ class VeiculoController extends Controller
         $placa = mb_strtoupper(preg_replace('/[^A-Za-z0-9]/', '', $busca));
 
         $veiculos = Veiculo::query()
-            ->with('marca')
             ->when($request->filled('id'), fn ($query) => $query->whereKey($request->integer('id')))
+            ->with('marca')
             ->when($busca !== '', fn ($query) => $query->where(function ($q) use ($busca, $placa) {
                 $q->where('modelo', 'ilike', "%{$busca}%");
 
@@ -51,6 +51,11 @@ class VeiculoController extends Controller
         Veiculo::create($request->validated());
 
         return redirect()->route('veiculos.index')->with('sucesso', 'Veículo cadastrado com sucesso.');
+    }
+
+    public function show(Veiculo $veiculo): View
+    {
+        return view('veiculos.show', ['veiculo' => $veiculo->load('marca')]);
     }
 
     public function edit(Veiculo $veiculo): View

@@ -14,7 +14,11 @@
                     @method('PUT') 
                 @endif
 
-                <x-form.codigo :valor="$veiculo->id" />
+                <div class="row">
+                    <div class="col-sm-4 col-md-3">
+                        <x-form.leitura label="Código" :valor="$veiculo->id" vazio="Gerado ao salvar" />
+                    </div>
+                </div>
                 <div class="row">
                     <div class="col-md-4">
                         <x-form.input name="placa" label="Placa" :value="$veiculo->placa_formatada" required maxlength="8" placeholder="ABC1D23" style="text-transform: uppercase;" autofocus />

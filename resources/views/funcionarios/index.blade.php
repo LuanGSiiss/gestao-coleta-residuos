@@ -29,7 +29,7 @@
                         <th style="width: 12rem;">Tipo</th>
                         <th>Cargo</th>
                         <th style="width: 7rem;">Situação</th>
-                        <th style="width: 11rem;" class="text-end">Ações</th>
+                        <th style="width: 14rem;" class="text-end">Ações</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -49,6 +49,7 @@
                                 <span class="badge text-bg-{{ $funcionario->ativo ? 'success' : 'secondary' }}">{{ $funcionario->ativo ? 'Ativo' : 'Inativo' }}</span>
                             </td>
                             <td class="text-end text-nowrap">
+                                <a href="{{ route('funcionarios.show', $funcionario) }}" class="btn btn-sm btn-outline-secondary">Ver</a>
                                 <a href="{{ route('funcionarios.edit', $funcionario) }}" class="btn btn-sm btn-outline-secondary">Editar</a>
                                 <x-botao-excluir :acao="route('funcionarios.destroy', $funcionario)" :confirmacao="'Excluir o funcionário ' . $funcionario->nome . '?'" />
                             </td>

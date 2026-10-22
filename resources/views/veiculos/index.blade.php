@@ -28,7 +28,7 @@
                         <th>Tipo</th>
                         <th style="width: 5rem;">Ano</th>
                         <th style="width: 7rem;">Situação</th>
-                        <th style="width: 11rem;" class="text-end">Ações</th>
+                        <th style="width: 14rem;" class="text-end">Ações</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -44,6 +44,7 @@
                                 <span class="badge text-bg-{{ $veiculo->ativo ? 'success' : 'secondary' }}">{{ $veiculo->ativo ? 'Ativo' : 'Inativo' }}</span>
                             </td>
                             <td class="text-end text-nowrap">
+                                <a href="{{ route('veiculos.show', $veiculo) }}" class="btn btn-sm btn-outline-secondary">Ver</a>
                                 <a href="{{ route('veiculos.edit', $veiculo) }}" class="btn btn-sm btn-outline-secondary">Editar</a>
                                 <x-botao-excluir :acao="route('veiculos.destroy', $veiculo)" :confirmacao="'Excluir o veículo ' . $veiculo->placa_formatada . '?'" />
                             </td>

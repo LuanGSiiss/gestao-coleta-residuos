@@ -52,6 +52,11 @@ class FuncionarioController extends Controller
         return redirect()->route('funcionarios.index')->with('sucesso', 'Funcionário cadastrado com sucesso.');
     }
 
+    public function show(Funcionario $funcionario): View
+    {
+        return view('funcionarios.show', ['funcionario' => $funcionario]);
+    }
+
     public function edit(Funcionario $funcionario): View
     {
         return view('funcionarios.form', $this->dadosFormulario($funcionario));

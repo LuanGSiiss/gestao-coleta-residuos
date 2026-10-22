@@ -2,6 +2,7 @@
     'label',
     'valor'      => null,
     'multilinha' => false,
+    'vazio'      => '—',
 ])
 
 <div class="mb-3">
@@ -13,7 +14,7 @@
         @elseif (filled($valor))
             <span class="{{ $multilinha ? 'texto-preservado' : '' }}">{{ $valor }}</span>
         @else
-            <span class="text-body-secondary">—</span>
+            <span class="text-body-secondary">{{ $vazio }}</span>
         @endif
     </div>
 </div>

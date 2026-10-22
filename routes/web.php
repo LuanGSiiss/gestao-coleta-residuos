@@ -31,8 +31,8 @@ Route::middleware('auth')->group(function () {
 
         Route::resource('marcas',  MarcaController::class)->except('show');
         Route::resource('bairros', BairroController::class)->except('show');
-        Route::resource('funcionarios', FuncionarioController::class)->except('show');
-        Route::resource('veiculos', VeiculoController::class)->except('show');
+        Route::resource('funcionarios', FuncionarioController::class);
+        Route::resource('veiculos', VeiculoController::class);
         
         Route::get('/rotas/mapa', [MapaRotasController::class, 'index'])->name('rotas.mapa');
         Route::get('/rotas/{rota}/versoes/{numero?}', [RotaVersaoController::class, 'index'])->whereNumber('numero')->name('rotas.versoes');
