@@ -18,15 +18,4 @@ enum TipoVeiculo: int
             self::CARROCERIA_ABERTA => 'Carroceria aberta',
         };
     }
-
-    /**
-     * Retorna as categorias de CNH que são permitidas para conduzir determinado veículo. Se informado nulo, permite qualquer uma.
-     */
-    public function categoriasCnhExigidas(): ?array
-    {
-        return match ($this) {
-            self::COMPACTADOR       => ['C', 'D', 'E', 'AC', 'AD', 'AE'],
-            self::CARROCERIA_ABERTA => null,
-        };
-    }
 }

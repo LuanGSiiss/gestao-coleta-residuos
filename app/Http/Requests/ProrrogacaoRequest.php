@@ -3,7 +3,6 @@
 namespace App\Http\Requests;
 
 use App\Support\Cronograma;
-use App\Support\Habilitacao;
 use App\Models\ProgramacaoColeta;
 use Illuminate\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
@@ -93,7 +92,7 @@ class ProrrogacaoRequest extends FormRequest
             }
         }
 
-        $impedimentos = Habilitacao::impedimentos($programacao->motorista, $programacao->veiculo);
+        $impedimentos = array_filter([$programacao->motorista->impedimentoParaAlocar()]);
 
         if ($inativos !== []) {
             array_unshift(

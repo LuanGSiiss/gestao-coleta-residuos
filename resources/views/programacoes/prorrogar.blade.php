@@ -1,5 +1,8 @@
-@use('App\Support\Retorno')
+@use('App\Support\Voltar')
 @extends('layouts.app')
+
+@php $voltar = Voltar::url(route('programacoes.show', $programacao)); @endphp
+
 @section('titulo', "Prorrogar programação {$programacao->id}")
 @section('subtitulo', $programacao->descricao)
 
@@ -17,7 +20,7 @@
             <form method="POST" action="{{ route('programacoes.prorrogar', $programacao) }}">
                 @csrf
                 @method('PUT')
-                <input type="hidden" name="voltar" value="{{ Retorno::atual() }}">
+                <input type="hidden" name="{{ Voltar::CAMPO }}" value="{{ $voltar }}">
 
                 <x-form.input name="data_fim" label="Nova data de término" type="date" required autofocus
                               :min="$programacao->data_fim->addDay()->toDateString()"
@@ -26,7 +29,7 @@
 
                 <div class="d-flex gap-2">
                     <button type="submit" class="btn btn-primary">Prorrogar</button>
-                    <a href="{{ Retorno::destino(route('programacoes.show', $programacao)) }}" class="btn btn-outline-secondary">Cancelar</a>
+                    <a href="{{ $voltar }}" class="btn btn-outline-secondary">Cancelar</a>
                 </div>
             </form>
         </div>

@@ -1,13 +1,16 @@
-@use('App\Support\Retorno')
+@use('App\Support\Voltar')
 @extends('layouts.app')
 
-@php $editando = $programacao->exists; @endphp
+@php 
+    $editando = $programacao->exists;
+    $voltar = Voltar::url($editando ? route('programacoes.show', $programacao) : route('programacoes.index'));
+@endphp
 
 @section('titulo', $editando ? "Editar programação {$programacao->id}" : 'Nova programação')
 
 @section('acoes')
     <div class="d-flex gap-2">
-        <a href="{{ Retorno::destino($editando ? route('programacoes.show', $programacao) : route('programacoes.index')) }}" class="btn btn-outline-secondary">Cancelar</a>
+        <a href="{{ $voltar }}" class="btn btn-outline-secondary">Cancelar</a>
         <button type="submit" form="form-programacao" class="btn btn-primary">{{ $editando ? 'Salvar alterações' : 'Cadastrar' }}</button>
     </div>
 @endsection
@@ -16,7 +19,7 @@
     <form id="form-programacao" method="POST" action="{{ $editando ? route('programacoes.update', $programacao) : route('programacoes.store') }}">
         @csrf
         @if ($editando) @method('PUT') @endif
-        <input type="hidden" name="voltar" value="{{ Retorno::atual() }}">
+        <input type="hidden" name="{{ Voltar::CAMPO }}" value="{{ $voltar }}">
 
         @if ($editando)
             <div class="alert alert-info">
@@ -30,16 +33,17 @@
         @elseif (empty($rotas) || empty($motoristas) || empty($veiculos) || $coletores->isEmpty())
             <div class="alert alert-warning">
                 Para cadastrar uma programação, é preciso ter ao menos uma rota ativa com trajeto e um
-                motorista, um coletor e um veículo ativos. Confira os cadastros de
-                <a href="{{ route('rotas.index') }}">rotas</a>,
-                <a href="{{ route('funcionarios.index') }}">funcionários</a> e
-                <a href="{{ route('veiculos.index') }}">veículos</a>.
+                motorista, um coletor e um veículo ativos.
             </div>
         @endif
 
         <div class="card mb-3">
             <div class="card-body">
-                <x-form.codigo :valor="$programacao->id" />
+                <div class="row">
+                    <div class="col-sm-4 col-md-3">
+                        <x-form.leitura label="Código" :valor="$programacao->id" vazio="Gerado ao salvar" />
+                    </div>
+                </div>
 
                 <div class="row">
                     <div class="{{ $editando ? 'col-12' : 'col-md-8' }}">

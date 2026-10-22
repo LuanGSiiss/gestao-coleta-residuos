@@ -45,25 +45,21 @@ trait ValidaAlocacao
      * Valida o periodo informando. Garantindo que o motorista não possua CNH vencida e tenha categoria C ou superior quando for um veiculo compactador. 
      * Se não for alterado os dados de motorista ou veiculo, apenas exibe um aviso.
      */
-    protected function validarHabilitacao(Validator $validator, ?int $motoristaAtual = null, ?int $veiculoAtual = null): void
+    protected function validarHabilitacao(Validator $validator, ?int $motoristaAtual = null): void
     {
-        if ($validator->errors()->hasAny(['motorista_id', 'veiculo_id'])) {
+        if ($validator->errors()->hasAny(['motorista_id'])) {
             return;
         }
 
         $motoristaId = $this->integer('motorista_id');
-        $veiculoId = $this->integer('veiculo_id');
 
-        if ($motoristaId === $motoristaAtual && $veiculoId === $veiculoAtual) {
+        if ($motoristaId === $motoristaAtual) {
             return;
         }
 
-        $impedimentos = Habilitacao::impedimentos(
-            Funcionario::findOrFail($motoristaId),
-            Veiculo::findOrFail($veiculoId),
-        );
+        $impedimento = Funcionario::findOrFail($motoristaId)->impedimentoParaAlocar();
 
-        foreach ($impedimentos as $impedimento) {
+        if ($impedimento !== null) {
             $validator->errors()->add('motorista_id', $impedimento);
         }
     }

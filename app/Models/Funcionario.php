@@ -81,17 +81,15 @@ class Funcionario extends Model
             && $this->cnh_validade->lt(today());
     }
 
-    /** Retorna se a CNH vence antes da data informada. */
-    public function cnhVenceAntesDe(CarbonInterface $data): bool
+    /**
+     * Retorna os impedimentos para alocar este motorista numa programação ou numa execução.
+     */
+    public function impedimentoParaAlocar(): ?string
     {
-        return $this->cnh_validade !== null && $this->cnh_validade->lt($data);
-    }
+        if (!$this->cnhVencida()) {
+            return null;
+        }
 
-    /** Retorna se a categoria da CNH permite conduzir o veículo informado*/
-    public function habilitadoPara(Veiculo $veiculo): bool
-    {
-        $exigidas = $veiculo->tipo->categoriasCnhExigidas();
-
-        return $exigidas === null || in_array($this->cnh_categoria, $exigidas, true);
+        return "A CNH de {$this->nome} venceu em {$this->cnh_validade->format('d/m/Y')}.";
     }
 }

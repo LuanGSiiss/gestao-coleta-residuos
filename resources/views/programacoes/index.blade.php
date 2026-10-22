@@ -1,10 +1,9 @@
-@use('App\Support\Retorno')
 @extends('layouts.app')
 @section('titulo', 'Programações de coleta')
 @section('subtitulo', 'Cronogramas recorrentes de coleta e as execuções geradas por eles')
 
 @section('acoes')
-    <a href="{{ Retorno::link('programacoes.create') }}" class="btn btn-primary">Nova programação</a>
+    <a href="{{ route('programacoes.create') }}" class="btn btn-primary">Nova programação</a>
 @endsection
 
 @section('conteudo')
@@ -65,9 +64,7 @@
                     @forelse ($programacoes as $programacao)
                         <tr>
                             <td class="text-secondary">{{ $programacao->id }}</td>
-                            <td>
-                                <a href="{{ Retorno::link('programacoes.show', $programacao) }}" class="fw-semibold">{{ $programacao->descricao }}</a>
-                            </td>
+                            <td class="fw-semibold">{{ $programacao->descricao }}</td>
                             <td class="text-nowrap">
                                 <span class="amostra-cor" style="background-color: {{ $programacao->rota->cor }}"></span>
                                 <span class="ms-1">{{ $programacao->rota->identificacao }}</span>
@@ -80,10 +77,10 @@
                                 <span class="badge text-bg-{{ $programacao->situacao->cor() }}">{{ $programacao->situacao->rotulo() }}</span>
                             </td>
                             <td class="text-end text-nowrap">
-                                <a href="{{ Retorno::link('programacoes.show', $programacao) }}" class="btn btn-sm btn-outline-secondary">Ver</a>
-                                <a href="{{ Retorno::link('execucoes.index', $programacao->filtroDasExecucoes()) }}" class="btn btn-sm btn-outline-secondary">Execuções</a>
+                                <a href="{{ route('programacoes.show', $programacao) }}" class="btn btn-sm btn-outline-secondary">Ver</a>
+                                <a href="{{ route('execucoes.index', $programacao->filtroDasExecucoes()) }}" class="btn btn-sm btn-outline-secondary">Execuções</a>
                                 @if ($programacao->ativa())
-                                    <a href="{{ Retorno::link('programacoes.edit', $programacao) }}" class="btn btn-sm btn-outline-secondary">Editar</a>
+                                    <a href="{{ route('programacoes.edit', $programacao) }}" class="btn btn-sm btn-outline-secondary">Editar</a>
                                 @endif
                             </td>
                         </tr>

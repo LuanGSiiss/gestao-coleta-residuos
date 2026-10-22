@@ -42,11 +42,7 @@ class ExecucaoRequest extends FormRequest
         $execucao = $this->execucao();
 
         return [
-            fn (Validator $validator) => $this->validarHabilitacao(
-                $validator,
-                $execucao->motorista_id,
-                $execucao->veiculo_id,
-            ),
+            fn (Validator $validator) => $this->validarHabilitacao($validator, $this->execucao()->motorista_id)
         ];
     }
 

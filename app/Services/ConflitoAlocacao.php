@@ -53,7 +53,6 @@ final class ConflitoAlocacao
             ->with(['coletores', 'programacao'])
             ->whereBetween('data', [min($datas), max($datas)])
             ->where('situacao', '<>', SituacaoExecucao::CANCELADA->value)
-            ->whereHas('programacao', fn ($programacao) => $programacao->ativas())
             ->when($programacaoIgnorada, fn ($query, $id) => $query->where('programacao_coleta_id', '<>', $id))
             ->where(fn ($query) => $query
                 ->whereIn('motorista_id', $funcionarios)
@@ -109,7 +108,7 @@ final class ConflitoAlocacao
                 '%s já está alocado na programação %d — %s: em %s, das %s às %s%s.',
                 $recurso,
                 $execucao->programacao->id,
-                $execucao->programacao->descricao,
+                $execucao->programacao->descricao . ($execucao->programacao->ativa() ? '' : ' (encerrada)'),
                 $execucao->data->format('d/m/Y'),
                 $execucao->hora_inicio_prevista,
                 $execucao->hora_fim_prevista,

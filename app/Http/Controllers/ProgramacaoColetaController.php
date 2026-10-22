@@ -17,6 +17,7 @@ use Illuminate\Http\RedirectResponse;
 use App\Http\Requests\ProrrogacaoRequest;
 use App\Services\ProgramacaoColetaService;
 use App\Http\Requests\ProgramacaoColetaRequest;
+use App\Support\Voltar;
 
 class ProgramacaoColetaController extends Controller
 {
@@ -71,7 +72,7 @@ class ProgramacaoColetaController extends Controller
             ->with('aviso', Habilitacao::aviso($programacao->motorista, $programacao->data_fim));
     }
 
-    public function show(Request $request, ProgramacaoColeta $programacao): View
+    public function show(ProgramacaoColeta $programacao): View
     {
         $programacao->load(['rota', 'motorista', 'veiculo', 'coletores', 'diasSemana']);
 
@@ -106,11 +107,10 @@ class ProgramacaoColetaController extends Controller
         $atualizadas = $this->servico->alterar($programacao, $request->dadosDaProgramacao(), $request->coletores());
 
         return redirect()
-            ->to(Retorno::destino(route('programacoes.show', $programacao)))
+            ->to(Voltar::url(route('programacoes.show', $programacao)))
             ->with('sucesso', "Programação {$programacao->id} alterada. " . ($atualizadas === 0
                 ? 'Nenhuma execução futura precisou mudar.'
-                : self::quantidade($atualizadas, 'execução futura atualizada.', 'execuções futuras atualizadas.')))
-            ->with('aviso', Habilitacao::aviso($programacao->load('motorista')->motorista, $programacao->data_fim));
+                : self::quantidade($atualizadas, 'execução futura atualizada.', 'execuções futuras atualizadas.')));
     }
 
     public function prorrogacao(ProgramacaoColeta $programacao): View|RedirectResponse
@@ -131,10 +131,9 @@ class ProgramacaoColetaController extends Controller
         $geradas = $this->servico->prorrogar($programacao, $request->date('data_fim')->toImmutable());
 
         return redirect()
-            ->to(Retorno::destino(route('programacoes.show', $programacao)))
+            ->to(Voltar::url(route('programacoes.show', $programacao)))
             ->with('sucesso', "Programação {$programacao->id} prorrogada até {$programacao->data_fim->format('d/m/Y')}: "
-                . self::quantidade($geradas, 'execução gerada.', 'execuções geradas.'))
-            ->with('aviso', Habilitacao::aviso($programacao->motorista, $programacao->data_fim));
+                . self::quantidade($geradas, 'execução gerada.', 'execuções geradas.'));
     }
 
     public function encerrar(Request $request, ProgramacaoColeta $programacao): RedirectResponse
@@ -146,7 +145,7 @@ class ProgramacaoColetaController extends Controller
         $canceladas = $this->servico->encerrar($programacao, $request->user());
 
         return redirect()
-            ->to(Retorno::manter('programacoes.show', $programacao))
+            ->to('programacoes.show', $programacao)
             ->with('sucesso', "Programação {$programacao->id} encerrada. " . ($canceladas === 0
                 ? 'Nenhuma execução futura precisou ser cancelada.'
                 : self::quantidade($canceladas, 'execução futura cancelada.', 'execuções futuras canceladas.')));

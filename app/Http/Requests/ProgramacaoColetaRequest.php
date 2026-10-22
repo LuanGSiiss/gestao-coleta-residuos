@@ -64,7 +64,7 @@ class ProgramacaoColetaRequest extends FormRequest
 
         return [
             fn (Validator $validator) => $this->validarPeriodo($validator),
-            fn (Validator $validator) => $this->validarHabilitacao($validator, $programacao?->motorista_id, $programacao?->veiculo_id)
+            fn (Validator $validator) => $this->validarHabilitacao($validator, $programacao?->motorista_id)
         ];
     }
 

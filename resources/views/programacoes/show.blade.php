@@ -1,4 +1,4 @@
-@use('App\Support\Retorno')
+@use('App\Support\Voltar')
 @use('App\Enums\SituacaoExecucao')
 @extends('layouts.app')
 @section('titulo', "Programação {$programacao->id}")
@@ -6,19 +6,17 @@
 
 @section('acoes')
     <div class="d-flex flex-wrap gap-2">
-        <a href="{{ Retorno::destino(route('programacoes.index')) }}" class="btn btn-outline-secondary">Voltar</a>
+        <a href="{{ Voltar::url(route('programacoes.index')) }}" class="btn btn-outline-secondary">Voltar</a>
 
-        <a href="{{ Retorno::link('execucoes.index', $programacao->filtroDasExecucoes()) }}" class="btn btn-outline-secondary">Execuções</a>
+        <a href="{{ route('execucoes.index', $programacao->filtroDasExecucoes()) }}" class="btn btn-outline-secondary">Execuções</a>
 
         @if ($programacao->ativa())
             <form method="POST" action="{{ route('programacoes.encerrar', $programacao) }}" data-confirmacao="{{ $confirmacao }}" data-confirmacao-acao="Encerrar">
                 @csrf
-                <input type="hidden" name="voltar" value="{{ Retorno::atual() }}">
                 <button type="submit" class="btn btn-outline-danger">Encerrar</button>
             </form>
 
-            <a href="{{ Retorno::link('programacoes.prorrogacao', $programacao) }}" class="btn btn-outline-secondary">Prorrogar</a>
-            <a href="{{ Retorno::link('programacoes.edit', $programacao) }}" class="btn btn-primary">Editar</a>
+            <a href="{{ route('programacoes.prorrogacao', $programacao) }}" class="btn btn-outline-secondary">Prorrogar</a>
         @endif
     </div>
 @endsection
@@ -30,20 +28,16 @@
             <div class="row row-cols-2 row-cols-sm-3 row-cols-lg-5 g-2">
                 @foreach (SituacaoExecucao::cases() as $situacao)
                     <div class="col">
-                        <a href="{{ Retorno::link('execucoes.index', ['programacao' => $programacao->id, 'situacao' => $situacao->value]) }}"
-                           class="total-situacao" style="--cor-situacao: var(--bs-{{ $situacao->cor() }})">
-                            <span class="small">{{ $situacao->rotulo() }}</span>
-                            <strong>{{ $resumo[$situacao->value] ?? 0 }}</strong>
-                        </a>
+                        <div class="total-situacao" style="--cor-situacao: var(--bs-{{ $situacao->cor() }})">
+                            <span class="small">{{ $situacao->rotulo() }}</span><strong>{{ $resumo[$situacao->value] ?? 0 }}</strong>
+                        </div>
                     </div>
 
                     @if ($situacao === SituacaoExecucao::NAO_INICIADA)
                         <div class="col">
-                            <a href="{{ Retorno::link('execucoes.index', ['programacao' => $programacao->id, 'situacao' => 'atrasadas']) }}"
-                               class="total-situacao" style="--cor-situacao: var(--bs-warning)">
-                                <span class="small">Atrasada</span>
-                                <strong>{{ $atrasadas }}</strong>
-                            </a>
+                            <div class="total-situacao" style="--cor-situacao: var(--bs-warning)">
+                                <span class="small">Atrasada</span><strong>{{ $atrasadas }}</strong>
+                            </div>
                         </div>
                     @endif
                 @endforeach
@@ -59,9 +53,7 @@
                 </div>
                 <div class="col-sm-8 col-md-9">
                     <x-form.leitura label="Situação">
-                        <span class="badge text-bg-{{ $programacao->situacao->cor() }}">
-                            {{ $programacao->situacao->rotulo() }}
-                        </span>
+                        <span class="badge text-bg-{{ $programacao->situacao->cor() }}">{{ $programacao->situacao->rotulo() }}</span>
                         @if ($programacao->encerrada_em)
                             <span class="small text-body-secondary ms-1">
                                 em {{ $programacao->encerrada_em->format('d/m/Y H:i') }}
@@ -82,7 +74,7 @@
 
             <x-form.leitura label="Rota">
                 <span class="amostra-cor" style="background-color: {{ $programacao->rota->cor }}"></span>
-                <a href="{{ Retorno::link('rotas.show', $programacao->rota) }}" class="ms-1">{{ $programacao->rota->identificacao }} — {{ $programacao->rota->nome }}</a>
+                <span class="ms-1">{{ $programacao->rota->identificacao }} — {{ $programacao->rota->nome }}</span>
                 @unless ($programacao->rota->ativo)
                     <span class="text-body-secondary">(inativa)</span>
                 @endunless
